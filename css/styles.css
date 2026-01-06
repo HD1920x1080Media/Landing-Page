@@ -124,8 +124,62 @@ body{
 
 /* Auf kleineren Bildschirmen bleibt einspaltig */
 @media (max-width:900px){
-  .embed-wrapper{grid-template-columns:1fr}
-  .responsive-embed{min-height:320px}
+  /* Force column layout and override inline gap/display on the embed row to avoid horizontal overflow */
+  .responsive-embed-row{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    align-items:stretch !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
+
+  /* Hide chat on small screens */
+  .responsive-embed.chat{
+    display:none !important;
+    flex:0 0 auto !important; /* ensure it doesn't take space if shown by mistake */
+    max-width:100% !important;
+  }
+
+  /* Make player respect viewport width and avoid overflow from padding/margins */
+  .responsive-embed.player{
+    flex:1 1 auto !important;
+    max-width:100% !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    padding:0 !important;
+    min-height:200px; /* slightly smaller to fit better on very small screens */
+  }
+
+  /* Ensure embed containers and their iframes never exceed the viewport width */
+  .responsive-embed,
+  .responsive-embed iframe{
+    max-width:100% !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Keep the fullwidth card from causing overflow (account for container padding) */
+  .embed-card.fullwidth{
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+    box-sizing: border-box;
+    padding-left:12px; /* inner spacing so content doesn't touch the edges */
+    padding-right:12px;
+    overflow:hidden;
+  }
+
+  /* additionally ensure no element inside can exceed the viewport width */
+  .embed-card.fullwidth *,
+  .embed-card.fullwidth *::before,
+  .embed-card.fullwidth *::after{
+    max-width:100vw !important;
+    box-sizing:border-box !important;
+  }
 }
-@media (max-width:900px){.link-grid{grid-template-columns:repeat(2,1fr)}.clips-grid{grid-template-columns:repeat(2,1fr)}.embed-wrapper{grid-template-columns:1fr}}
+@media (max-width:700px){.link-grid{grid-template-columns:repeat(2,1fr)}.clips-grid{grid-template-columns:repeat(2,1fr)}.embed-wrapper{grid-template-columns:1fr}}
 @media (max-width:520px){.link-grid{grid-template-columns:1fr}.profile-box{flex-direction:row;gap:12px}.profile-info h1{font-size:22px}.profile-img{width:64px;height:64px}.clips-grid{grid-template-columns:1fr}}
