@@ -210,6 +210,7 @@
 }
 
 .result-rank.top-3 {
+    color: #ffd700; /* Fallback for browsers without background-clip support */
     background: linear-gradient(135deg, #ffd700, #ffed4e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

@@ -141,8 +141,11 @@ class TwitchClipsFetcher {
         const endDate = new Date(this.config.CLIPS_END);
         const maxClips = parseInt(this.config.MAX_CLIPS) || 10;
         
-        // Get GitHub Pages domain from config or environment
-        const domain = process.env.GITHUB_PAGES_DOMAIN || 'sommer2019.github.io';
+        // Get GitHub Pages domain from environment (required)
+        const domain = process.env.GITHUB_PAGES_DOMAIN;
+        if (!domain) {
+            throw new Error('GITHUB_PAGES_DOMAIN environment variable is required');
+        }
         
         const params = new URLSearchParams({
             broadcaster_id: broadcasterId,

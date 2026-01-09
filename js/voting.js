@@ -420,7 +420,11 @@ class VotingSystem {
             return votesB - votesA;
         });
         
-        const maxVotes = Math.max(...sortedClips.map(c => this.voteCounts[c.id] || 0), 1);
+        // Find max votes using reduce for better performance with many clips
+        const maxVotes = sortedClips.reduce((max, clip) => {
+            const votes = this.voteCounts[clip.id] || 0;
+            return Math.max(max, votes);
+        }, 1);
         
         sortedClips.forEach((clip, index) => {
             const card = this.createResultCard(clip, index + 1, maxVotes);
