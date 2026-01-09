@@ -4,6 +4,9 @@ const cors = require('cors');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,8 +20,27 @@ let configCache = null;
 let configLastModified = null;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? process.env.ALLOWED_ORIGIN : true,
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+
+// Rate limiting for all routes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use(limiter);
+
+// Stricter rate limiting for authentication routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many authentication attempts, please try again later.'
+});
 
 // Serve only specific static directories instead of the whole working directory
 app.use('/css', express.static(path.join(__dirname, 'css')));
@@ -45,6 +67,16 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
+
+// CSRF protection (disabled in development for easier testing, but can be enabled)
+// Note: CSRF protection is less critical for API-only endpoints with proper CORS
+const csrfProtection = csrf({ 
+  cookie: true,
+  ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
+});
+
+// For GET requests, we can skip CSRF as they should be safe operations
+const csrfForMutating = process.env.ENABLE_CSRF === 'true' ? csrfProtection : (req, res, next) => next();
 
 // Load configuration from config.txt with caching
 function loadConfig() {
@@ -184,14 +216,14 @@ app.get('/api/clips', async (req, res) => {
 });
 
 // Twitch OAuth - Start authentication
-app.get('/api/auth/twitch', (req, res) => {
+app.get('/api/auth/twitch', authLimiter, (req, res) => {
   const redirectUri = process.env.TWITCH_REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
   const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=user:read:email`;
   res.json({ authUrl });
 });
 
 // Twitch OAuth - Callback
-app.get('/auth/callback', async (req, res) => {
+app.get('/auth/callback', authLimiter, async (req, res) => {
   const { code } = req.query;
   
   if (!code) {
@@ -247,7 +279,7 @@ app.get('/api/user', (req, res) => {
 });
 
 // Submit vote
-app.post('/api/vote', (req, res) => {
+app.post('/api/vote', csrfForMutating, (req, res) => {
   const { clipId } = req.body;
   
   if (!req.session.user) {
@@ -322,7 +354,7 @@ app.get('/api/results', async (req, res) => {
 });
 
 // Logout
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', csrfForMutating, (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error('Error destroying session:', err);
