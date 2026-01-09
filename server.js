@@ -19,7 +19,17 @@ let configLastModified = null;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+
+// Serve only specific static directories instead of the whole working directory
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/img', express.static(path.join(__dirname, 'img')));
+app.use('/html', express.static(path.join(__dirname, 'html')));
+
+// Serve index.html from root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Validate that SESSION_SECRET is set in production
 if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   throw new Error('SESSION_SECRET environment variable must be set in production');
@@ -29,7 +39,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Enable in production with HTTPS
+    httpOnly: true,
+    sameSite: 'lax'
+  }
 }));
 
 // Load configuration from config.txt with caching
