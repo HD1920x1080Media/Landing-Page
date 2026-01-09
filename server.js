@@ -8,38 +8,63 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// In-memory storage (in production, use a database)
+// In-memory storage (WARNING: Data will be lost on server restart. For production, use a persistent database)
 const votes = new Map(); // userId -> clipId
 const voteCounts = new Map(); // clipId -> count
+
+// Configuration cache
+let configCache = null;
+let configLastModified = null;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
+// Validate that SESSION_SECRET is set in production
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('SESSION_SECRET environment variable must be set in production');
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
+  secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // Set to true if using HTTPS
 }));
 
-// Load configuration from config.txt
+// Load configuration from config.txt with caching
 function loadConfig() {
   const configPath = path.join(__dirname, 'config.txt');
   const config = {};
   
   try {
+    const stats = fs.statSync(configPath);
+    const currentModified = stats.mtime.getTime();
+    
+    // Return cached config if file hasn't changed
+    if (configCache && configLastModified === currentModified) {
+      return configCache;
+    }
+    
     const data = fs.readFileSync(configPath, 'utf8');
     const lines = data.split('\n');
     
     for (const line of lines) {
       if (line.trim() && !line.startsWith('#')) {
-        const [key, value] = line.split('=');
-        if (key && value) {
-          config[key.trim()] = value.trim();
+        const equalIndex = line.indexOf('=');
+        if (equalIndex > 0) {
+          const key = line.substring(0, equalIndex).trim();
+          const value = line.substring(equalIndex + 1).trim();
+          if (key && value) {
+            config[key] = value;
+          }
         }
       }
     }
+    
+    // Update cache
+    configCache = config;
+    configLastModified = currentModified;
   } catch (error) {
     console.error('Error reading config file:', error);
   }
@@ -284,8 +309,13 @@ app.get('/api/results', async (req, res) => {
 
 // Logout
 app.post('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ success: true });
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.status(500).json({ error: 'Failed to logout' });
+    }
+    res.json({ success: true });
+  });
 });
 
 // Start server

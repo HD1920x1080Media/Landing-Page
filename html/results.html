@@ -243,6 +243,13 @@
     <script>
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
         
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
         // Show message
         function showMessage(message, type = 'info') {
             const container = document.getElementById('message-container');
@@ -300,7 +307,7 @@
                             height="100%">
                         </iframe>
                     </div>
-                    <div class="clip-title" style="font-size: 14px;">${clip.title}</div>
+                    <div class="clip-title" style="font-size: 14px;">${escapeHtml(clip.title)}</div>
                     <div class="clip-votes" style="font-size: 20px;">${clip.votes} Votes</div>
                     <a href="${clip.url}" target="_blank" class="clip-link">
                         Clip ansehen →
@@ -329,7 +336,7 @@
                         </iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="clip-title">${clip.title}</div>
+                        <div class="clip-title">${escapeHtml(clip.title)}</div>
                         <div class="clip-meta">
                             <span>👁️ ${clip.view_count.toLocaleString()} Views</span>
                             <span>📅 ${new Date(clip.created_at).toLocaleDateString('de-DE')}</span>

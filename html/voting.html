@@ -244,6 +244,13 @@
         let selectedClipId = null;
         let currentUser = null;
         
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
         // Show message
         function showMessage(message, type = 'info') {
             const container = document.getElementById('message-container');
@@ -314,7 +321,7 @@
             authSection.innerHTML = `
                 <div class="user-info">
                     <div>
-                        <strong>Angemeldet als:</strong> ${currentUser.display_name}
+                        <strong>Angemeldet als:</strong> ${escapeHtml(currentUser.display_name)}
                     </div>
                     <button class="logout-button" onclick="logout()">Abmelden</button>
                 </div>
@@ -395,7 +402,7 @@
                         </iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="clip-title">${clip.title}</div>
+                        <div class="clip-title">${escapeHtml(clip.title)}</div>
                         <div class="clip-meta">
                             <span>👁️ ${clip.view_count.toLocaleString()} Views</span>
                             <span>📅 ${new Date(clip.created_at).toLocaleDateString('de-DE')}</span>
