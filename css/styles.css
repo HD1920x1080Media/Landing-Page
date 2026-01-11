@@ -154,6 +154,15 @@ body{
 }
 .btn-secondary:hover{transform:translateY(-2px)}
 
+/* Triggers / Donation list */
+.triggers-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;list-style:none;padding:0;margin:0}
+.triggers-list li{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));border:1px solid rgba(124,77,255,0.06);transition:transform .12s ease,box-shadow .12s ease}
+.triggers-list li:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(124,77,255,0.08)}
+.price-badge{flex:0 0 auto;background:linear-gradient(180deg,var(--accent),rgba(100,50,240,0.95));color:#fff;padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.95rem;box-shadow:0 6px 18px rgba(124,77,255,0.12)}
+.trigger-desc{color:rgba(230,238,248,0.95);font-weight:600}
+/* Support narrow badge on very small screens */
+@media (max-width:380px){.triggers-list{grid-template-columns:1fr}.price-badge{padding:6px 8px;font-size:0.9rem}}
+
 @media (min-width:1200px){
   .embed-wrapper{grid-template-columns:2fr 1fr}
   .responsive-embed{min-height:480px}
