@@ -1,0 +1,37 @@
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Streamplan – HD1920x1080</title>
+  <meta name="description" content="Streamplan von HD">
+  <link rel="icon" href="img/HD.png" type="image/png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <main class="container">
+        <div>
+            <h1 class="page-title">Streamplan</h1>
+            <p>Hier findest du den aktuellen Streamplan von HD1920x1080. Bleib auf dem Laufenden über kommende Live-Streams und Events!</p>
+            <!-- Kalender Embed -->
+            <div class="embed-card fullwidth">
+                <a href="https://kalender.digital/4ccef74582e0eb8d7026?utm_medium=social">
+                    <div class="embed-title">Stream-Kalender</div>
+                    <div class="responsive-embed">
+                        <iframe id="calendar-iframe"
+                                src="https://kalender.digital/4ccef74582e0eb8d7026?view=list&utm_medium=social&utm_source=heylink.me"
+                                title="Stream Kalender" allowfullscreen></iframe>
+                    </div>
+                </a>
+                <p style="margin-top:18px">
+                    <a href="index.html" class="btn">← Zurück</a>
+                </p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© <span id="year"></span> FullHD Media <a href="impressum.html">Impressum</a></p>
+        </footer>
+    </main>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>404 — Seite nicht gefunden</title>
+  <link rel="icon" href="img/HD.png" type="image/png">
+  <link rel="stylesheet" href="./css/styles.css">
+  <style>
+    /* Ergänzende lokale Styles nur für die 404-Seite */
+    .error-page{
+      min-height: calc(100vh - 140px);
+      display:flex;align-items:center;justify-content:center;padding:40px 16px;
+    }
+    .error-card{max-width:720px;width:100%;background:var(--card-bg);border:1px solid var(--box-border);padding:28px;border-radius:14px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .error-logo{width:160px;height:auto;margin:0 auto 18px;display:block}
+    .error-title{font-size:28px;color:var(--accent);margin:0 0 8px}
+    .error-text{color:var(--muted);margin:0}
+    .error-actions{margin-top:18px;display:flex;gap:12px;justify-content:center}
+    @media (max-width:520px){.error-logo{width:120px}.error-card{padding:18px}}
+  </style>
+</head>
+<body>
+  <!-- Behalte das originale Script unverändert (wichtig: Funktion nicht ändern) -->
+  <script>
+    (async function() {
+        const path = window.location.pathname.toLowerCase().replace(/\/$/, ""); // Pfad ohne / am Ende
+        const currentURL = window.location.href;
+
+        // 1. Definition deiner Fremdlinks (Mapping)
+        const redirects = {
+            "/instagram": "https://www.instagram.com/hd1920x1080/",
+            "/insta":  "https://www.instagram.com/hd1920x1080/",
+            "/yt":  "https://youtube.com/@hawedereplus",
+            "/youtube":  "https://youtube.com/@hawedereplus",
+            "/tiktok":  "https://tiktok.com/@hd1920x1080",
+            "/nclip":  "https://nclip.io/page/hd1920x1080",
+            "/puzzle":  "http://tng.gl/c/hd1920x1080",
+            "/tanggle":  "http://tng.gl/c/hd1920x1080",
+            "/discord":   "https://discord.gg/Zp5KNqCHzc",
+            "/dc":   "https://discord.gg/Zp5KNqCHzc",
+            "/cdm":   "https://www.hd1920x1080.de/clipdesmonats",
+            "/rp":   "https://www.hd1920x1080.de/download/HD1920x1080_V1.10.zip",
+            "/ressourcepack":   "https://www.hd1920x1080.de/download/HD1920x1080_V1.10.zip",
+            "/twitch":   "https://www.twitch.tv/hd1920x1080",
+            "/onlybart":   "https://www.hd1920x1080.de/ob",
+            "/c/instagram": "https://www.instagram.com/hawedereshorts/",
+            "/c/insta":  "https://www.instagram.com/hawedereshorts/",
+            "/c/yt":  "https://www.youtube.com/@lesommer2019",
+            "/c/youtube":  "https://www.youtube.com/@lesommer2019",
+            "/c/tiktok":  "https://www.tiktok.com/@hawedereshorts"
+        };
+
+        // 2. Prüfen, ob der Pfad in der Mapping-Liste ist
+        if (redirects[path]) {
+            window.location.replace(redirects[path]);
+            return;
+        }
+
+        // 3. Wenn kein Fremdlink: Case-Insensitive Check für eigene Seiten
+        const lowerCaseURL = currentURL.toLowerCase();
+        if (currentURL !== lowerCaseURL) {
+            try {
+                const response = await fetch(lowerCaseURL, { method: 'HEAD' });
+                if (response.ok) {
+                    window.location.replace(lowerCaseURL);
+                    return;
+                }
+            } catch (e) {
+                console.error("Check failed", e);
+            }
+        }
+
+        // 4. Wenn alles fehlschlägt: Fehler-Nachricht anzeigen
+        document.getElementById('error-message').style.display = 'block';
+    })();
+  </script>
+
+  <!-- Neuer gestylter Fehlerbereich (JS darf unverändert bleiben) -->
+  <main class="container error-page">
+    <div id="error-message" style="display:none;" class="error-card" role="alert" aria-labelledby="err-title">
+      <img src="img/HD.png" alt="HD Logo" class="error-logo">
+      <h1 id="err-title" class="error-title">404 — Seite nicht gefunden</h1>
+      <p class="error-text">Seite konnte nicht gefunden werden, zurück zur Startseite und Hawedere</p>
+
+      <div class="error-actions">
+        <a class="btn btn-primary" href="index.html">Zur Startseite</a>
+        <a class="btn btn-secondary" href="mailto:Admin@HD1920x1080.de?subject=404%20Anfrage">Kontakt</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer container">
+    <p>© <span id="year"></span> FullHD Media <a href="impressum.html">Impressum</a></p>
+  </footer>
+
+  <script>
+    // nur Footer-Jahr setzen, unabh. von originaler Funktion
+    try { document.getElementById('year').textContent = new Date().getFullYear(); } catch(e){}
+  </script>
+</body>
+</html>
