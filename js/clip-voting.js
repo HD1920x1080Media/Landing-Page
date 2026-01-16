@@ -119,13 +119,28 @@
         const card = document.createElement('div');
         card.className = 'clip-card';
 
-        const thumbnail = document.createElement('img');
-        thumbnail.src = clip.thumbnail_url;
-        thumbnail.alt = clip.title;
-        thumbnail.className = 'clip-thumbnail';
-        // Thumbnail klickbar machen: ersetzt das Bild durch das Embed (und zurück)
-        thumbnail.style.cursor = 'pointer';
-        thumbnail.addEventListener('click', () => toggleEmbedReplace(thumbnail, clip, card));
+        // Direktes Embed: wenn möglich zeigen wir das iframe sofort an.
+        const embedWrapper = document.createElement('div');
+        embedWrapper.className = 'clip-embed-wrapper';
+        embedWrapper.style.width = '100%';
+        embedWrapper.style.height = '360px';
+        embedWrapper.style.marginBottom = '8px';
+
+        const iframe = createEmbedIframe(clip);
+        if (iframe && canEmbedClip(clip)) {
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            embedWrapper.appendChild(iframe);
+        } else {
+            // Fallback: zeige das Thumbnail und öffne den Clip im neuen Tab beim Klick
+            const thumbnail = document.createElement('img');
+            thumbnail.src = clip.thumbnail_url;
+            thumbnail.alt = clip.title;
+            thumbnail.className = 'clip-thumbnail';
+            thumbnail.style.cursor = 'pointer';
+            thumbnail.addEventListener('click', () => window.open(clip.url, '_blank'));
+            embedWrapper.appendChild(thumbnail);
+        }
 
         const info = document.createElement('div');
         info.className = 'clip-info';
@@ -158,7 +173,9 @@
         info.appendChild(voteBtn);
         // Embed wird durch Klick auf das Thumbnail gesteuert
 
-        card.appendChild(thumbnail);
+        // Embed/Fallback zuerst, dann Info
+        card.appendChild(embedWrapper);
+
         card.appendChild(info);
 
         return card;
@@ -272,13 +289,27 @@
         rankBadge.className = 'rank-badge';
         rankBadge.textContent = `#${rank}`;
 
-        const thumbnail = document.createElement('img');
-        thumbnail.src = clip.thumbnail_url;
-        thumbnail.alt = clip.title;
-        thumbnail.className = 'clip-thumbnail';
-        // Klick auf Thumbnail ersetzt Bild durch Embed
-        thumbnail.style.cursor = 'pointer';
-        thumbnail.addEventListener('click', () => toggleEmbedReplace(thumbnail, clip, card));
+        // Direktes Embed anzeigen (oder Fallback auf Thumbnail, das im neuen Tab öffnet)
+        const embedWrapper = document.createElement('div');
+        embedWrapper.className = 'clip-embed-wrapper';
+        embedWrapper.style.width = '100%';
+        embedWrapper.style.height = '360px';
+        embedWrapper.style.marginBottom = '8px';
+
+        const iframe = createEmbedIframe(clip);
+        if (iframe && canEmbedClip(clip)) {
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            embedWrapper.appendChild(iframe);
+        } else {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = clip.thumbnail_url;
+            thumbnail.alt = clip.title;
+            thumbnail.className = 'clip-thumbnail';
+            thumbnail.style.cursor = 'pointer';
+            thumbnail.addEventListener('click', () => window.open(clip.url, '_blank'));
+            embedWrapper.appendChild(thumbnail);
+        }
 
         const info = document.createElement('div');
         info.className = 'clip-info';
@@ -310,53 +341,10 @@
         // Embed wird durch Klick auf das Thumbnail gesteuert
 
         card.appendChild(rankBadge);
-        card.appendChild(thumbnail);
-        card.appendChild(info);
+        card.appendChild(embedWrapper);
+         card.appendChild(info);
 
-        return card;
-    }
-
-    // Toggle embed by replacing the thumbnail element with an embed container (iframe).
-    function toggleEmbedReplace(thumbnailEl, clip, card) {
-        const existing = card.querySelector('.clip-embed');
-        // If an embed already exists for this clip, remove it and restore thumbnail
-        if (existing && existing.dataset.clipId === String(clip.id)) {
-            existing.parentNode.replaceChild(thumbnailEl, existing);
-            return;
-        }
-
-        // If another embed exists for a different clip, remove it first
-        if (existing) {
-            existing.remove();
-        }
-
-        const embedContainer = document.createElement('div');
-        embedContainer.className = 'clip-embed';
-        embedContainer.style.marginTop = '10px';
-        embedContainer.style.width = '100%';
-        embedContainer.style.height = '360px';
-        embedContainer.dataset.clipId = String(clip.id);
-
-        // Wenn das Clip-Objekt nicht eingebettet werden kann (z.B. Twitch auf localhost),
-        // öffnen wir den Clip direkt im neuen Tab und lassen das Thumbnail unverändert.
-        if (!canEmbedClip(clip)) {
-            window.open(clip.url, '_blank');
-            return;
-        }
-
-        const iframe = createEmbedIframe(clip);
-        if (!iframe) {
-            // Sicherheitshalber: falls createEmbedIframe aus irgendeinem Grund kein iframe erzeugt,
-            // öffnen wir den Clip im neuen Tab.
-            window.open(clip.url, '_blank');
-            return;
-        }
-
-        embedContainer.appendChild(iframe);
-        // Ersetze das Thumbnail im DOM durch das Embed-Container
-        if (thumbnailEl.parentNode) {
-            thumbnailEl.parentNode.replaceChild(embedContainer, thumbnailEl);
-        }
+         return card;
     }
 
     // Prüft, ob ein Clip eingebettet werden kann (Twitch benötigt eine nicht-lokale Domain)
@@ -368,8 +356,7 @@
             const isLocal = !hostname || hostname === 'localhost' || hostname.startsWith('127.') || hostname === '::1';
             return !isLocal;
         }
-        if (url.includes('youtube.com') || url.includes('youtu.be')) return true;
-        return false;
+        return url.includes('youtube.com') || url.includes('youtu.be');
     }
 
     // Erzeugt ein iframe-Element für den Clip. Wenn nicht möglich, return null.
@@ -429,10 +416,4 @@
     } else {
         init();
     }
-
-    // Expose for debugging
-    window.CDM = {
-        init,
-        resetVote: () => localStorage.removeItem(VOTE_STORAGE_KEY)
-    };
 })();
