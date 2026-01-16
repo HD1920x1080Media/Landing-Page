@@ -398,43 +398,8 @@
 
     // Vote for a clip
     async function voteForClip(clipId) {
-        // Confirm vote
-        if (!confirm('Möchtest du wirklich für diesen Clip abstimmen? Du kannst nur einmal voten!')) {
-            return;
-        }
-
-        try {
-            // Get IP hash
-            const ipHash = await getUserIpHash();
-            
-            // Try to submit vote to Supabase
-            try {
-                await submitVoteToDB(clipId, ipHash, getVotingRound());
-                
-                // Store vote in localStorage after successful DB submission
-                localStorage.setItem(getStorageKey(), clipId);
-                
-                showVotedMessage(clipId);
-            } catch (error) {
-                console.error('Error submitting vote to Supabase:', error);
-                
-                // If Supabase fails, handle appropriately
-                if (error.message === 'Already voted') {
-                    // User already voted, update localStorage to prevent UI confusion
-                    localStorage.setItem(getStorageKey(), clipId);
-                    showError('Du hast bereits abgestimmt!');
-                } else {
-                    // Other errors - clean up localStorage and show error
-                    localStorage.removeItem(getStorageKey());
-                    showError('Fehler beim Abstimmen. Bitte versuche es erneut.');
-                }
-            }
-
-        } catch (error) {
-            console.error('Error submitting vote:', error);
-            localStorage.removeItem(getStorageKey());
-            showError('Fehler beim Abstimmen. Bitte versuche es erneut.');
-        }
+        // Show custom modal confirmation
+        showVoteConfirm(clipId);
     }
 
     // Show voted message
@@ -643,6 +608,69 @@
             day: 'numeric'
         });
     }
+
+    // Modal helper functions for vote confirmation
+    let pendingVoteClipId = null;
+
+    window.showVoteConfirm = function(clipId) {
+        pendingVoteClipId = clipId;
+        const modal = document.getElementById('vote-modal');
+        if (modal) {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            // focus first action for keyboard users
+            setTimeout(() => { modal.querySelector('.btn-secondary')?.focus(); }, 10);
+        }
+    };
+
+    window.hideVoteConfirm = function() {
+        pendingVoteClipId = null;
+        const modal = document.getElementById('vote-modal');
+        if (modal) {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    };
+
+    window.confirmVote = async function() {
+        const clipId = pendingVoteClipId;
+        hideVoteConfirm();
+        
+        if (!clipId) return;
+        
+        try {
+            // Get IP hash
+            const ipHash = await getUserIpHash();
+            
+            // Try to submit vote to Supabase
+            try {
+                await submitVoteToDB(clipId, ipHash, getVotingRound());
+                
+                // Store vote in localStorage after successful DB submission
+                localStorage.setItem(getStorageKey(), clipId);
+                
+                showVotedMessage(clipId);
+            } catch (error) {
+                console.error('Error submitting vote to Supabase:', error);
+                
+                // If Supabase fails, handle appropriately
+                if (error.message === 'Already voted') {
+                    // User already voted, update localStorage to prevent UI confusion
+                    localStorage.setItem(getStorageKey(), clipId);
+                    showError('Du hast bereits abgestimmt!');
+                } else {
+                    // Other errors - clean up localStorage and show error
+                    localStorage.removeItem(getStorageKey());
+                    showError('Fehler beim Abstimmen. Bitte versuche es erneut.');
+                }
+            }
+
+        } catch (error) {
+            console.error('Error submitting vote:', error);
+            localStorage.removeItem(getStorageKey());
+            showError('Fehler beim Abstimmen. Bitte versuche es erneut.');
+        }
+    };
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
