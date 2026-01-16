@@ -11,6 +11,88 @@
     let currentClips = null;
     let currentResults = null;
 
+    // Queue für sequentielles Laden von Embeds (damit nicht alle iframes gleichzeitig geladen werden)
+    const embedLoadQueue = [];
+    let embedLoading = false;
+
+    function enqueueEmbed(clip, placeholderEl) {
+        embedLoadQueue.push({clip, placeholderEl});
+        // Wenn gerade nichts geladen wird und dies das erste Element ist,
+        // starte sofort den Ladevorgang synchron, damit der erste Clip möglichst schnell lädt.
+        if (!embedLoading && embedLoadQueue.length === 1) {
+            try {
+                loadNextEmbed();
+            } catch (e) {
+                // Fallback: asynchron starten, falls synchrones Laden Probleme macht
+                setTimeout(() => loadNextEmbed(), 0);
+            }
+        }
+    }
+
+    function startSequentialEmbedLoading() {
+        // beginne nur, wenn nicht bereits geladen wird
+        if (!embedLoading) {
+            // starte asynchron, damit DOM-Einfügungen abgeschlossen sind
+            setTimeout(() => loadNextEmbed(), 50);
+        }
+    }
+
+    function loadNextEmbed() {
+        if (embedLoading) return;
+        const item = embedLoadQueue.shift();
+        if (!item) return;
+        embedLoading = true;
+
+        const {clip, placeholderEl} = item;
+        // Versuche ein iframe zu erzeugen
+        const iframe = createEmbedIframe(clip);
+        const parent = placeholderEl.parentNode;
+        if (!iframe || !parent) {
+            // Fallback: ersetze Platzhalter durch Thumbnail, öffnet Clip im neuen Tab
+            const thumb = document.createElement('img');
+            thumb.src = clip.thumbnail_url;
+            thumb.alt = clip.title;
+            thumb.className = 'clip-thumbnail';
+            thumb.style.cursor = 'pointer';
+            thumb.addEventListener('click', () => window.open(clip.url, '_blank'));
+            if (parent) parent.replaceChild(thumb, placeholderEl);
+            embedLoading = false;
+            // Lade als nächstes das nächste Embed (kleine Pause)
+            setTimeout(loadNextEmbed, 50);
+            return;
+        }
+
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+
+        // Wenn das iframe geladen oder fehlerhaft ist, fahre mit dem nächsten fort
+        let settled = false;
+        const settle = () => {
+            if (settled) return;
+            settled = true;
+            embedLoading = false;
+            // kurze Pause vor dem nächsten, um Bandbreite zu schonen
+            setTimeout(loadNextEmbed, 100);
+        };
+
+        iframe.addEventListener('load', () => settle());
+        iframe.addEventListener('error', () => settle());
+
+        // Timeout-Fallback falls kein load/error ausgelöst wird
+        const timeoutId = setTimeout(() => {
+            settle();
+            clearTimeout(timeoutId);
+        }, 2500);
+
+        // Ersetze Platzhalter durch iframe (das lädt dann und löst load aus)
+        try {
+            parent.replaceChild(iframe, placeholderEl);
+        } catch (e) {
+            // Falls ersetzen fehlschlägt, entferne placeholder und hänge iframe an
+            try { parent.appendChild(iframe); } catch (e2) { /* ignore */ }
+        }
+    }
+
     // Constants for voting period calculation
     const VOTING_PERIOD_DAYS = 17; // Last 7 days of the month
 
@@ -112,6 +194,9 @@
         });
 
         container.appendChild(clipsGrid);
+
+        // Starte sequentielles Laden der Embeds (1., 2., 3. ...)
+        startSequentialEmbedLoading();
     }
 
     // Create clip card
@@ -126,11 +211,18 @@
         embedWrapper.style.height = '360px';
         embedWrapper.style.marginBottom = '8px';
 
-        const iframe = createEmbedIframe(clip);
-        if (iframe && canEmbedClip(clip)) {
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            embedWrapper.appendChild(iframe);
+        // Wir fügen einen Platzhalter ein und enqueuen das Embed, damit iframes
+        // nacheinander geladen werden (verbessert Time-to-first-clip bei vielen Clips).
+        if (canEmbedClip(clip)) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'clip-embed-placeholder';
+            placeholder.style.width = '100%';
+            placeholder.style.height = '100%';
+            placeholder.dataset.clipId = clip.id;
+            // einfacher Ladehinweis
+            placeholder.innerHTML = '<div class="embed-loading">Lade Clip…</div>';
+            embedWrapper.appendChild(placeholder);
+            enqueueEmbed(clip, placeholder);
         } else {
             // Fallback: zeige das Thumbnail und öffne den Clip im neuen Tab beim Klick
             const thumbnail = document.createElement('img');
@@ -256,6 +348,9 @@
         });
 
         container.appendChild(resultsGrid);
+
+        // Starte sequentielles Laden der Embeds für Ergebnisse
+        startSequentialEmbedLoading();
     }
 
     // Zeige eine freundliche Meldung, wenn es keine Ergebnisse für den letzten Monat gibt
@@ -296,11 +391,15 @@
         embedWrapper.style.height = '360px';
         embedWrapper.style.marginBottom = '8px';
 
-        const iframe = createEmbedIframe(clip);
-        if (iframe && canEmbedClip(clip)) {
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            embedWrapper.appendChild(iframe);
+        if (canEmbedClip(clip)) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'clip-embed-placeholder';
+            placeholder.style.width = '100%';
+            placeholder.style.height = '100%';
+            placeholder.dataset.clipId = clip.id;
+            placeholder.innerHTML = '<div class="embed-loading">Lade Clip…</div>';
+            embedWrapper.appendChild(placeholder);
+            enqueueEmbed(clip, placeholder);
         } else {
             const thumbnail = document.createElement('img');
             thumbnail.src = clip.thumbnail_url;
@@ -347,13 +446,16 @@
          return card;
     }
 
-    // Prüft, ob ein Clip eingebettet werden kann (Twitch benötigt eine nicht-lokale Domain)
-    function canEmbedClip() {
-        const hostname = window.location.host;
-        return hostname &&
-            hostname !== 'localhost' &&
-            !hostname.startsWith('127.') &&
-            hostname !== '::1';
+    // Prüft, ob ein Clip eingebettet werden kann (Twitch benötigt normalerweise eine nicht-lokale Domain).
+    // Für Entwicklung kann `currentConfig.allowLocalEmbeds` aktiviert werden, um Embeds lokal zu erlauben.
+    function canEmbedClip(/* optional clip */) {
+        // Dev override aus config
+        if (currentConfig && currentConfig.allowLocalEmbeds) return true;
+
+        const hostname = window.location.hostname || window.location.host || '';
+        if (!hostname) return false;
+        const isLocal = hostname === 'localhost' || hostname.startsWith('127.') || hostname === '::1';
+        return !isLocal;
     }
 
 
