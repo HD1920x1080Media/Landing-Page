@@ -371,7 +371,6 @@
             iframe.style.width = '100%';
             iframe.style.height = '100%';
 
-            // ✅ id == slug (richtig!)
             iframe.src =
                 `https://clips.twitch.tv/embed?clip=${clip.id}&parent=${parent}`;
 
