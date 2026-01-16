@@ -348,40 +348,34 @@
     }
 
     // Prüft, ob ein Clip eingebettet werden kann (Twitch benötigt eine nicht-lokale Domain)
-    function canEmbedClip(clip) {
-        if (clip && clip.embed_url) return true;
-        const url = (clip && clip.url) || '';
-        if (url.includes('clips.twitch.tv')) {
-            const hostname = window.location.hostname || '';
-            const isLocal = !hostname || hostname === 'localhost' || hostname.startsWith('127.') || hostname === '::1';
-            return !isLocal;
-        }
-        return url.includes('youtube.com') || url.includes('youtu.be');
+    function canEmbedClip() {
+        const hostname = window.location.hostname;
+        return hostname &&
+            hostname !== 'localhost' &&
+            !hostname.startsWith('127.') &&
+            hostname !== '::1';
     }
+
 
     // Erzeugt ein iframe-Element für den Clip. Wenn nicht möglich, return null.
     function createEmbedIframe(clip) {
         try {
+            if (!canEmbedClip()) return null;
+
+            const parent = window.location.hostname;
+            if (!parent) return null;
+
             const iframe = document.createElement('iframe');
-            iframe.setAttribute('allowfullscreen', '');
-            iframe.setAttribute('frameborder', '0');
+            iframe.allowFullscreen = true;
+            iframe.frameBorder = '0';
             iframe.style.width = '100%';
             iframe.style.height = '100%';
 
-            // Priorität: clip.embed_url, sonst versuchen wir spezifische Hosts zu behandeln
-            if (clip.embed_url) {
-                iframe.src = clip.embed_url;
-                return iframe;
-            }
+            // ✅ id == slug (richtig!)
+            iframe.src =
+                `https://clips.twitch.tv/embed?clip=${clip.id}&parent=${parent}`;
 
-            const url = clip.url || '';
-            // Twitch clips: https://clips.twitch.tv/<slug>
-            if (url.includes('clips.twitch.tv')) {
-                const parent = window.location.host;
-                iframe.src = `https://clips.twitch.tv/embed?clip=${clip.id}&parent=${parent}`;
-                return iframe;
-            }
-            return null;
+            return iframe;
         } catch (err) {
             console.error('Embed creation failed', err);
             return null;
