@@ -14,9 +14,19 @@ This feature adds a manual second voting round system that allows administrators
 ### 2. Clip des Jahres (Clip of the Year)
 - Winners are saved to a special "Clip des Jahres" table
 - Accessible at `/cdj` endpoint
-- Organized by months of the year
+- **Period**: December (previous year) through November (current year) - 12 months total
+- Example: In 2026, shows December 2025 through November 2026
+- Shows top 10 clips per month
 - Similar design to Clip des Monats but without voting functionality
-- Automatic cleanup of old year's data when a new year starts
+- Automatic cleanup when December voting completes (removes previous cycle)
+
+## Clip des Jahres Period Logic
+
+The "Clip des Jahres" follows a December-to-November cycle:
+- **Current Period** (when viewing in 2026): December 2025 - November 2026
+- **Display Order**: December appears first, followed by January through November
+- **Cleanup**: When December voting is saved, the previous cycle is automatically deleted
+  - Example: Saving December 2026 results will delete December 2024 and Jan-Nov 2025 data
 
 ## Database Schema Changes
 
@@ -209,17 +219,20 @@ If second voting is not manually ended before the expiry date:
 
 ## Data Cleanup
 
-### Old Year Cleanup
+### CDJ Cycle Cleanup
 
 When ending a second voting round:
-- System checks if this is the first clip of a new year's month
-- If yes, automatically deletes all Clip des Jahres entries from previous years
-- Keeps only current year's data
+- System checks if this is December voting
+- If yes, automatically deletes the previous CDJ cycle:
+  - Deletes December from 2 years ago
+  - Deletes January-November from last year
+- This ensures only the current 12-month period (Dec-Nov) is stored
 
-Example:
-- If saving winners for February 2027 and there are clips from 2026
-- All 2026 clips are automatically deleted
-- Only 2027 clips remain
+Example cleanup flow:
+- Saving December 2026 results triggers cleanup
+- Deletes: December 2024 and January-November 2025
+- Keeps: December 2025, January-November 2026, and newly saved December 2026
+- Next period will be: December 2026 - November 2027
 
 ## Security Considerations
 
@@ -257,7 +270,7 @@ Example:
 - [ ] Verify results are saved correctly
 - [ ] Check Clip des Jahres page displays winners
 - [ ] Test automatic expiry (adjust end date in past)
-- [ ] Verify old year cleanup works
+- [ ] Verify CDJ cycle cleanup works (December cleanup)
 - [ ] Test overlap prevention with monthly voting
 - [ ] Verify vote tracking is separate between rounds
 

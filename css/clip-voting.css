@@ -245,6 +245,18 @@
 }
 
 /* Clip des Jahres Styles */
+.cdj-period-header {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #FFD700;
+}
+
 .cdj-month-section {
     margin-bottom: 3rem;
 }

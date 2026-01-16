@@ -106,32 +106,27 @@ async function main() {
     const calculatedYear = calculatedDate.getFullYear();
     const calculatedMonth = calculatedDate.getMonth() + 1;
     
-    // Clean up old years' data if we're in a new year
-    const actualCurrentYear = new Date().getFullYear();
-    if (actualCurrentYear > calculatedYear) {
-      console.log(`Cleaning up Clip des Jahres data from years before ${actualCurrentYear}...`);
-      await deleteOldClipDesJahres(supabase, actualCurrentYear);
-    }
-    
-    // Check if this is the first clip of a new year's month
-    const existingClips = await supabase
-      .from('clip_des_jahres')
-      .select('year, month')
-      .eq('year', calculatedYear)
-      .eq('month', calculatedMonth);
-    
-    // If this is a new year and we have clips from the previous year, clean them up
-    if (!existingClips.data || existingClips.data.length === 0) {
-      const previousYearClips = await supabase
-        .from('clip_des_jahres')
-        .select('year')
-        .lt('year', calculatedYear)
-        .limit(1);
+    // If this is December voting, clean up the old CDJ cycle
+    // Old cycle = clips from December (calculatedYear-2) and Jan-Nov (calculatedYear-1)
+    if (calculatedMonth === 12) {
+      console.log(`December voting detected - cleaning up previous CDJ cycle...`);
       
-      if (previousYearClips.data && previousYearClips.data.length > 0) {
-        console.log(`First clip of new year detected, removing old year data...`);
-        await deleteOldClipDesJahres(supabase, calculatedYear);
-      }
+      // Delete December from 2 years ago
+      await supabase
+        .from('clip_des_jahres')
+        .delete()
+        .eq('year', calculatedYear - 2)
+        .eq('month', 12);
+      
+      // Delete January-November from last year
+      await supabase
+        .from('clip_des_jahres')
+        .delete()
+        .eq('year', calculatedYear - 1)
+        .gte('month', 1)
+        .lte('month', 11);
+      
+      console.log(`Cleaned up CDJ cycle: Dec ${calculatedYear - 2} - Nov ${calculatedYear - 1}`);
     }
     
     // Save winners to clip_des_jahres

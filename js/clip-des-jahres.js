@@ -75,10 +75,18 @@
     // Initialize the display system
     async function init() {
         try {
-            const currentYear = new Date().getFullYear();
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1; // 1-12
             
-            // Fetch clip des jahres from database
-            const clips = await fetchClipDesJahres(currentYear);
+            // Determine the "Clip des Jahres" year based on current month
+            // If we're in January-November: show Dec (prevYear) - Nov (currentYear)
+            // If we're in December: show Dec (prevYear) - Nov (currentYear), but prepare for next cycle
+            const cdjYear = currentYear; // The year of the November that ends the period
+            
+            // Fetch clip des jahres from database for the CDJ period
+            // Period: December (cdjYear-1) through November (cdjYear)
+            const clips = await fetchClipDesJahresPeriod(cdjYear);
             
             if (!clips || clips.length === 0) {
                 showNoClipsMessage();
@@ -95,15 +103,47 @@
                 clipsByMonth[month].push(clip);
             });
             
-            showClipsByMonth();
+            showClipsByMonth(cdjYear);
         } catch (error) {
             console.error('Error initializing Clip des Jahres:', error);
             showError('Fehler beim Laden der Clip des Jahres Daten. Bitte versuche es später erneut.');
         }
     }
+    
+    // Fetch clips for the CDJ period (Dec previous year through Nov current year)
+    async function fetchClipDesJahresPeriod(cdjYear) {
+        const supabase = await getSupabaseClient();
+        
+        // Fetch December from previous year
+        const { data: decemberClips, error: decError } = await supabase
+            .from('clip_des_jahres')
+            .select('*')
+            .eq('year', cdjYear - 1)
+            .eq('month', 12)
+            .order('votes', { ascending: false });
+        
+        if (decError && decError.code !== 'PGRST116') throw decError;
+        
+        // Fetch January through November from current year
+        const { data: currentYearClips, error: currError } = await supabase
+            .from('clip_des_jahres')
+            .select('*')
+            .eq('year', cdjYear)
+            .gte('month', 1)
+            .lte('month', 11)
+            .order('month', { ascending: true })
+            .order('votes', { ascending: false });
+        
+        if (currError && currError.code !== 'PGRST116') throw currError;
+        
+        // Combine the results
+        const allClips = [...(decemberClips || []), ...(currentYearClips || [])];
+        
+        return allClips;
+    }
 
     // Show clips organized by month
-    function showClipsByMonth() {
+    function showClipsByMonth(cdjYear) {
         const container = document.getElementById('cdj-container');
         if (!container) return;
 
@@ -114,16 +154,26 @@
             'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
         ];
 
-        // Sort months in descending order (most recent first)
-        const months = Object.keys(clipsByMonth).map(m => parseInt(m)).sort((a, b) => b - a);
+        // Show period header
+        const periodHeader = document.createElement('div');
+        periodHeader.className = 'cdj-period-header';
+        periodHeader.innerHTML = `<p>Zeitraum: Dezember ${cdjYear - 1} - November ${cdjYear}</p>`;
+        container.appendChild(periodHeader);
 
-        months.forEach(month => {
+        // Define the order: December first, then January-November
+        const monthOrder = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        
+        monthOrder.forEach(month => {
+            if (!clipsByMonth[month]) return; // Skip months without clips
+            
             const monthSection = document.createElement('div');
             monthSection.className = 'cdj-month-section';
 
             const monthHeader = document.createElement('h2');
             monthHeader.className = 'cdj-month-header';
-            monthHeader.textContent = `🏆 ${monthNames[month - 1]} ${new Date().getFullYear()}`;
+            // For December, show previous year
+            const displayYear = month === 12 ? cdjYear - 1 : cdjYear;
+            monthHeader.textContent = `🏆 ${monthNames[month - 1]} ${displayYear}`;
             monthSection.appendChild(monthHeader);
 
             const clipsGrid = document.createElement('div');
@@ -134,7 +184,10 @@
             // Sort clips by votes (descending)
             monthClips.sort((a, b) => b.votes - a.votes);
 
-            monthClips.forEach((clip, index) => {
+            // Show only top 10
+            const top10Clips = monthClips.slice(0, 10);
+
+            top10Clips.forEach((clip, index) => {
                 const clipCard = createClipCard(clip, index === 0);
                 clipsGrid.appendChild(clipCard);
             });
@@ -247,10 +300,13 @@
         const container = document.getElementById('cdj-container');
         if (!container) return;
 
+        const now = new Date();
+        const currentYear = now.getFullYear();
+
         container.innerHTML = `
             <div class="no-results-message">
                 <h2>ℹ️ Noch keine Clip des Jahres Gewinner</h2>
-                <p>Für das aktuelle Jahr wurden noch keine "Clip des Jahres" Gewinner ermittelt.</p>
+                <p>Für den aktuellen Zeitraum (Dezember ${currentYear - 1} - November ${currentYear}) wurden noch keine "Clip des Jahres" Gewinner ermittelt.</p>
                 <p>Die Gewinner werden nach jeder zweiten Voting-Runde hier angezeigt.</p>
             </div>
         `;
