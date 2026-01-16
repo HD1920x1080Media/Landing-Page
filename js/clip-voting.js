@@ -390,32 +390,12 @@
             const url = clip.url || '';
             // Twitch clips: https://clips.twitch.tv/<slug>
             if (url.includes('clips.twitch.tv')) {
-                // Für Twitch benötigt das Embed den `parent`-Parameter. Wir nutzen hostname.
-                // Lokale Hosts wie 'localhost' oder '127.0.0.1' sind üblicherweise nicht bei Twitch registriert
-                // und führen zu "Verbindung abgelehnt" im iframe. In diesen Fällen lieber Fallback (öffnen im neuen Tab).
                 const slug = (url.split('/').filter(Boolean).pop() || '').split(/[?#]/)[0];
                 const src = `https://clips.twitch.tv/embed?clip=${encodeURIComponent(slug)}`+`&parent=hd1920x1080.de`;
                 iframe.setAttribute('src', src);
                 iframe.src = src;
                 return iframe;
             }
-
-            // YouTube short (youtu.be) oder watch?v= -> normale Einbettung
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                // Extrahiere Video-ID
-                let id;
-                if (url.includes('youtu.be/')) {
-                    id = url.split('youtu.be/')[1].split(/[?&]/)[0];
-                } else {
-                    const m = url.match(/[?&]v=([^&]+)/);
-                    id = m && m[1];
-                }
-                if (id) {
-                    iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
-                    return iframe;
-                }
-            }
-
             // Fallback: wir können die URL nicht sicher einbetten
             return null;
         } catch (err) {
