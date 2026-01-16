@@ -257,7 +257,7 @@
       <p>Für den letzten Monat sind derzeit noch keine Ergebnisse verfügbar.</p>
       <p>Das Voting ist aktuell nicht aktiv. Das Voting findet jeweils in der letzten Woche des Monats statt.</p>
       <p>Schau bitte kurz vor Monatsende wieder vorbei — dann wird das Voting automatisch aktiviert.</p>
-      <p class="note">Wenn du Clips einsehen möchtest, nutze die "Clip ansehen"-Schaltfläche neben jedem Eintrag oder lade die Seite neu, sobald neue Daten vorhanden sind.</p>
+      <p class="note">Wenn du Clips einsehen möchtest, lade die Seite neu, sobald neue Daten vorhanden sind.</p>
     `;
 
     container.appendChild(message);
