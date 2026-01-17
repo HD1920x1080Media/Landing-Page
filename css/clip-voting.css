@@ -40,21 +40,21 @@
     text-align: center;
 }
 
-/* Voted clip highlight */
+/* Voted clip highlight - using a more muted green for better visual harmony */
 .clip-card.voted-clip {
-    border: 2px solid #00FF00;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-    background: rgba(0, 255, 0, 0.05);
+    border: 2px solid #28a745;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+    background: rgba(40, 167, 69, 0.05);
 }
 
 .clip-card.voted-clip:hover {
-    box-shadow: 0 8px 24px rgba(0, 255, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(40, 167, 69, 0.4);
 }
 
 /* Your vote badge */
 .your-vote-badge {
-    background: #00FF00;
-    color: #000;
+    background: #28a745;
+    color: #fff;
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-weight: bold;

@@ -324,80 +324,16 @@
 
     // Create clip card
     function createClipCard(clip) {
-        const card = document.createElement('div');
-        card.className = 'clip-card';
-
-        // Direktes Embed: wenn möglich zeigen wir das iframe sofort an.
-        const embedWrapper = document.createElement('div');
-        embedWrapper.className = 'clip-embed-wrapper';
-        embedWrapper.style.width = '100%';
-        embedWrapper.style.height = '360px';
-        embedWrapper.style.marginBottom = '8px';
-
-        // Wir fügen einen Platzhalter ein und enqueuen das Embed, damit iframes
-        // nacheinander geladen werden (verbessert Time-to-first-clip bei vielen Clips).
-        if (canEmbedClip(clip)) {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'clip-embed-placeholder';
-            placeholder.style.width = '100%';
-            placeholder.style.height = '100%';
-            placeholder.dataset.clipId = clip.id;
-            // einfacher Ladehinweis
-            placeholder.innerHTML = '<div class="embed-loading">Lade Clip…</div>';
-            embedWrapper.appendChild(placeholder);
-            enqueueEmbed(clip, placeholder);
-        } else {
-            // Fallback: zeige das Thumbnail und öffne den Clip im neuen Tab beim Klick
-            const thumbnail = document.createElement('img');
-            thumbnail.src = clip.thumbnail_url;
-            thumbnail.alt = clip.title;
-            thumbnail.className = 'clip-thumbnail';
-            thumbnail.style.cursor = 'pointer';
-            thumbnail.addEventListener('click', () => window.open(clip.url, '_blank'));
-            embedWrapper.appendChild(thumbnail);
-        }
-
-        const info = document.createElement('div');
-        info.className = 'clip-info';
-
-        const title = document.createElement('h3');
-        title.textContent = clip.title;
-        title.className = 'clip-title';
-
-        const meta = document.createElement('div');
-        meta.className = 'clip-meta';
-        meta.innerHTML = `
-      <span>👁️ ${clip.view_count.toLocaleString()} Views</span>
-      <span>⏱️ ${Math.floor(clip.duration)}s</span>
-      <span>📅 ${formatDate(new Date(clip.created_at))}</span>
-    `;
-
-        const creator = document.createElement('div');
-        creator.className = 'clip-creator';
-        creator.textContent = `Erstellt von: ${clip.creator_name}`;
-
-        const voteBtn = document.createElement('button');
-        voteBtn.className = 'btn btn-primary vote-btn';
-        voteBtn.textContent = 'Für diesen Clip voten';
-        voteBtn.onclick = () => voteForClip(clip.id);
-
-        info.appendChild(title);
-        info.appendChild(meta);
-        info.appendChild(creator);
-        // Zeige "Clip ansehen" vor dem Vote-Button, damit Nutzer die Quelle schnell öffnen können
-        info.appendChild(voteBtn);
-        // Embed wird durch Klick auf das Thumbnail gesteuert
-
-        // Embed/Fallback zuerst, dann Info
-        card.appendChild(embedWrapper);
-
-        card.appendChild(info);
-
-        return card;
+        return createClipCardInternal(clip, false, false);
     }
 
     // Create clip card without voting button (for showing after user has voted)
     function createClipCardWithoutVoting(clip, isVoted) {
+        return createClipCardInternal(clip, true, isVoted);
+    }
+
+    // Internal helper to create clip cards with or without voting functionality
+    function createClipCardInternal(clip, hideVoteButton, isVoted) {
         const card = document.createElement('div');
         card.className = 'clip-card';
         
@@ -458,6 +394,15 @@
         info.appendChild(title);
         info.appendChild(meta);
         info.appendChild(creator);
+
+        // Add vote button only if not hidden
+        if (!hideVoteButton) {
+            const voteBtn = document.createElement('button');
+            voteBtn.className = 'btn btn-primary vote-btn';
+            voteBtn.textContent = 'Für diesen Clip voten';
+            voteBtn.onclick = () => voteForClip(clip.id);
+            info.appendChild(voteBtn);
+        }
 
         // Add "Your Vote" badge if this is the voted clip
         if (isVoted) {
