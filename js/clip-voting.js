@@ -408,7 +408,7 @@
         if (isVoted) {
             const voteBadge = document.createElement('div');
             voteBadge.className = 'your-vote-badge';
-            voteBadge.innerHTML = '✓ Deine Stimme';
+            voteBadge.textContent = '✓ Deine Stimme';
             info.appendChild(voteBadge);
         }
 
@@ -458,7 +458,7 @@
             clipsGrid.className = 'clips-grid';
 
             currentClips.clips.forEach(clip => {
-                const clipCard = createClipCardWithoutVoting(clip, clip.id === votedClipId);
+                const clipCard = createClipCardWithoutVoting(clip, clip.id == votedClipId);
                 clipsGrid.appendChild(clipCard);
             });
 
