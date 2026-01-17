@@ -12,7 +12,7 @@ on:
       duration_days:
         description: 'Duration of second voting in days'
         required: true
-        default: '7'
+        default: '1'
 
 permissions:
   contents: write
