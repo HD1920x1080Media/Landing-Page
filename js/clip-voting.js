@@ -396,14 +396,92 @@
         return card;
     }
 
+    // Create clip card without voting button (for showing after user has voted)
+    function createClipCardWithoutVoting(clip, isVoted) {
+        const card = document.createElement('div');
+        card.className = 'clip-card';
+        
+        // Highlight the clip that was voted for
+        if (isVoted) {
+            card.classList.add('voted-clip');
+        }
+
+        // Direktes Embed: wenn möglich zeigen wir das iframe sofort an.
+        const embedWrapper = document.createElement('div');
+        embedWrapper.className = 'clip-embed-wrapper';
+        embedWrapper.style.width = '100%';
+        embedWrapper.style.height = '360px';
+        embedWrapper.style.marginBottom = '8px';
+
+        // Wir fügen einen Platzhalter ein und enqueuen das Embed, damit iframes
+        // nacheinander geladen werden (verbessert Time-to-first-clip bei vielen Clips).
+        if (canEmbedClip(clip)) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'clip-embed-placeholder';
+            placeholder.style.width = '100%';
+            placeholder.style.height = '100%';
+            placeholder.dataset.clipId = clip.id;
+            // einfacher Ladehinweis
+            placeholder.innerHTML = '<div class="embed-loading">Lade Clip…</div>';
+            embedWrapper.appendChild(placeholder);
+            enqueueEmbed(clip, placeholder);
+        } else {
+            // Fallback: zeige das Thumbnail und öffne den Clip im neuen Tab beim Klick
+            const thumbnail = document.createElement('img');
+            thumbnail.src = clip.thumbnail_url;
+            thumbnail.alt = clip.title;
+            thumbnail.className = 'clip-thumbnail';
+            thumbnail.style.cursor = 'pointer';
+            thumbnail.addEventListener('click', () => window.open(clip.url, '_blank'));
+            embedWrapper.appendChild(thumbnail);
+        }
+
+        const info = document.createElement('div');
+        info.className = 'clip-info';
+
+        const title = document.createElement('h3');
+        title.textContent = clip.title;
+        title.className = 'clip-title';
+
+        const meta = document.createElement('div');
+        meta.className = 'clip-meta';
+        meta.innerHTML = `
+      <span>👁️ ${clip.view_count.toLocaleString()} Views</span>
+      <span>⏱️ ${Math.floor(clip.duration)}s</span>
+      <span>📅 ${formatDate(new Date(clip.created_at))}</span>
+    `;
+
+        const creator = document.createElement('div');
+        creator.className = 'clip-creator';
+        creator.textContent = `Erstellt von: ${clip.creator_name}`;
+
+        info.appendChild(title);
+        info.appendChild(meta);
+        info.appendChild(creator);
+
+        // Add "Your Vote" badge if this is the voted clip
+        if (isVoted) {
+            const voteBadge = document.createElement('div');
+            voteBadge.className = 'your-vote-badge';
+            voteBadge.innerHTML = '✓ Deine Stimme';
+            info.appendChild(voteBadge);
+        }
+
+        // Embed/Fallback zuerst, dann Info
+        card.appendChild(embedWrapper);
+        card.appendChild(info);
+
+        return card;
+    }
+
     // Vote for a clip
     async function voteForClip(clipId) {
         // Show custom modal confirmation
         showVoteConfirm(clipId);
     }
 
-    // Show voted message
-    function showVotedMessage() {
+    // Show voted message with all clips and highlight the voted clip
+    function showVotedMessage(votedClipId) {
         const container = document.getElementById('voting-container');
         if (!container) return;
 
@@ -419,6 +497,32 @@
     `;
 
         container.appendChild(message);
+
+        // Show all clips with the voted clip highlighted
+        if (currentClips && currentClips.clips && currentClips.clips.length > 0) {
+            const clipsSection = document.createElement('div');
+            clipsSection.className = 'voted-clips-section';
+            
+            const clipsHeader = document.createElement('h3');
+            clipsHeader.textContent = 'Alle Clips dieser Voting-Runde:';
+            clipsHeader.style.marginTop = '24px';
+            clipsHeader.style.marginBottom = '16px';
+            clipsSection.appendChild(clipsHeader);
+
+            const clipsGrid = document.createElement('div');
+            clipsGrid.className = 'clips-grid';
+
+            currentClips.clips.forEach(clip => {
+                const clipCard = createClipCardWithoutVoting(clip, clip.id === votedClipId);
+                clipsGrid.appendChild(clipCard);
+            });
+
+            clipsSection.appendChild(clipsGrid);
+            container.appendChild(clipsSection);
+
+            // Start loading embeds
+            startSequentialEmbedLoading();
+        }
     }
 
     // Show results interface
