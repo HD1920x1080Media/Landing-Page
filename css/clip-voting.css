@@ -40,6 +40,11 @@
     text-align: center;
 }
 
+.voted-clips-header {
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
 /* Voted clip highlight - using a more muted green for better visual harmony */
 .clip-card.voted-clip {
     border: 2px solid #28a745;

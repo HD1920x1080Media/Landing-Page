@@ -450,14 +450,15 @@
             
             const clipsHeader = document.createElement('h3');
             clipsHeader.textContent = 'Alle Clips dieser Voting-Runde:';
-            clipsHeader.style.marginTop = '24px';
-            clipsHeader.style.marginBottom = '16px';
+            clipsHeader.className = 'voted-clips-header';
             clipsSection.appendChild(clipsHeader);
 
             const clipsGrid = document.createElement('div');
             clipsGrid.className = 'clips-grid';
 
             currentClips.clips.forEach(clip => {
+                // Explicit string conversion ensures type-safe comparison since
+                // votedClipId from localStorage is always a string
                 const clipCard = createClipCardWithoutVoting(clip, String(clip.id) === String(votedClipId));
                 clipsGrid.appendChild(clipCard);
             });
