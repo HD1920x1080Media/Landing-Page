@@ -456,7 +456,8 @@
             clipsGrid.className = 'clips-grid';
 
             currentClips.clips.forEach(clip => {
-                // Convert clip.id to string for comparison since votedClipId from localStorage is always a string
+                // Convert clip.id to string since votedClipId from localStorage is always a string
+                // (clip.id may be string or number from API, votedClipId is always string from localStorage)
                 const clipCard = createClipCardWithoutVoting(clip, String(clip.id) === votedClipId);
                 clipsGrid.appendChild(clipCard);
             });

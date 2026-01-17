@@ -1,5 +1,9 @@
 /* Clip des Monats - Voting Styles */
 
+:root {
+    --voted-clip-color: #28a745;
+}
+
 .voting-container {
     margin: 2rem 0;
 }
@@ -42,9 +46,9 @@
     margin-bottom: 16px;
 }
 
-/* Voted clip highlight - using a more muted green for better visual harmony */
+/* Voted clip highlight - using CSS custom property for consistency */
 .clip-card.voted-clip {
-    border: 2px solid #28a745;
+    border: 2px solid var(--voted-clip-color);
     box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
     background: rgba(40, 167, 69, 0.05);
 }
@@ -55,7 +59,7 @@
 
 /* Your vote badge */
 .your-vote-badge {
-    background: #28a745;
+    background: var(--voted-clip-color);
     color: #fff;
     padding: 0.5rem 1rem;
     border-radius: 6px;
