@@ -724,8 +724,7 @@
         const container = document.getElementById('cdj-container');
         if (!container) return;
 
-        const now = new Date();
-        const currentYear = now.getFullYear();
+        const currentYear = lastYear + 1;
 
         container.innerHTML = `
             <div class="no-results-message">
