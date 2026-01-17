@@ -458,7 +458,7 @@
             clipsGrid.className = 'clips-grid';
 
             currentClips.clips.forEach(clip => {
-                const clipCard = createClipCardWithoutVoting(clip, clip.id == votedClipId);
+                const clipCard = createClipCardWithoutVoting(clip, String(clip.id) === String(votedClipId));
                 clipsGrid.appendChild(clipCard);
             });
 
