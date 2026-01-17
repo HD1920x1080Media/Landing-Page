@@ -2,10 +2,10 @@ name: Check Clip des Jahres Voting Automation
 
 on:
   schedule:
-    # Run daily at 6:00 AM UTC (7:00 AM CET) to check for auto-start on Dec 15
-    - cron: '0 6 * 12 *'  # Daily in December at 6 AM UTC
-    # Run daily at 11:59 PM UTC (00:59 AM CET next day) to check for auto-end on Dec 21
-    - cron: '59 23 * 12 *'  # Daily in December at 11:59 PM UTC
+    # Run daily from December 15-31 at 6:00 AM UTC (7:00 AM CET) to check for auto-start
+    - cron: '0 6 15-31 12 *'
+    # Run daily from December 15-31 at 11:59 PM UTC (00:59 AM CET next day) to check for auto-end
+    - cron: '59 23 15-31 12 *'
   workflow_dispatch:
 
 permissions:

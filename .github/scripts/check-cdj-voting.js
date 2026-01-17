@@ -6,6 +6,13 @@ const {
 
 const { execSync } = require('child_process');
 
+// Configuration constants
+const CDJ_AUTO_START_DAY = 15;  // December 15th
+const CDJ_AUTO_END_DAY = 21;     // December 21st
+const CDJ_AUTO_END_HOUR = 23;    // 23:59:59
+const CDJ_AUTO_END_MINUTE = 59;
+const CDJ_AUTO_END_SECOND = 59;
+
 async function main() {
   // Initialize Supabase
   const supabase = getSupabaseClient();
@@ -47,9 +54,9 @@ async function main() {
       const hoursRemaining = Math.round((endsAt - now) / (1000 * 60 * 60));
       console.log(`Clip des Jahres voting is still active (${hoursRemaining} hours remaining)`);
     }
-  } else if (currentMonth === 12 && currentDay >= 15) {
+  } else if (currentMonth === 12 && currentDay >= CDJ_AUTO_START_DAY) {
     // Check if we should auto-start voting
-    // Auto-start on December 15th if not already started
+    // Auto-start on December 15th or later if not already started
     
     // Check if voting was already started and ended this year
     if (config && !config.is_active && config.target_year === currentYear) {
@@ -62,8 +69,8 @@ async function main() {
       console.log(`Auto-starting Clip des Jahres voting for year ${currentYear}...`);
       
       try {
-        // Calculate duration: from now until December 21 at 23:59
-        const targetEndDate = new Date(currentYear, 11, 21, 23, 59, 59, 999); // December 21
+        // Calculate duration: from now until December 21 at 23:59:59
+        const targetEndDate = new Date(currentYear, 11, CDJ_AUTO_END_DAY, CDJ_AUTO_END_HOUR, CDJ_AUTO_END_MINUTE, CDJ_AUTO_END_SECOND);
         const durationDays = Math.ceil((targetEndDate - now) / (1000 * 60 * 60 * 24));
         
         execSync('node .github/scripts/start-cdj-voting.js', { 

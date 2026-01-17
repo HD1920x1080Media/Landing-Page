@@ -409,11 +409,11 @@
         if (!container) return;
 
         // Try to get winner for last year
-        const lastYear = currentYear - 1;
+        const previousYear = currentYear - 1;
         let winner = null;
         
         try {
-            winner = await fetchClipDesJahresWinner(lastYear);
+            winner = await fetchClipDesJahresWinner(previousYear);
         } catch (error) {
             console.log('No winner found for last year:', error);
         }
@@ -421,7 +421,7 @@
         if (winner) {
             // Show winner
             if (description) {
-                description.textContent = `Der Gewinner des Clip des Jahres ${lastYear}:`;
+                description.textContent = `Der Gewinner des Clip des Jahres ${previousYear}:`;
             }
 
             container.innerHTML = '';
@@ -429,7 +429,7 @@
             const header = document.createElement('div');
             header.className = 'cdj-winner-header';
             header.innerHTML = `
-                <h2>🏆 Clip des Jahres ${lastYear}</h2>
+                <h2>🏆 Clip des Jahres ${previousYear}</h2>
                 <p>Mit <strong>${winner.votes || 0} Stimmen</strong> hat dieser Clip gewonnen!</p>
             `;
             container.appendChild(header);
@@ -451,7 +451,7 @@
             const clips = await fetchClipDesJahresPeriod(cdjYear);
             
             if (!clips || clips.length === 0) {
-                showNoClipsMessage(lastYear);
+                showNoClipsMessage(previousYear);
                 return;
             }
             
@@ -720,16 +720,16 @@
         }
     }
 
-    function showNoClipsMessage(lastYear) {
+    function showNoClipsMessage(previousYear) {
         const container = document.getElementById('cdj-container');
         if (!container) return;
 
-        const currentYear = lastYear + 1;
+        const currentYear = previousYear + 1;
 
         container.innerHTML = `
             <div class="no-results-message">
-                <h2>ℹ️ Noch kein Clip des Jahres ${lastYear}</h2>
-                <p>Für das Jahr ${lastYear} wurde noch kein "Clip des Jahres" Gewinner ermittelt.</p>
+                <h2>ℹ️ Noch kein Clip des Jahres ${previousYear}</h2>
+                <p>Für das Jahr ${previousYear} wurde noch kein "Clip des Jahres" Gewinner ermittelt.</p>
                 <p>Das Voting für den "Clip des Jahres" findet jährlich im Dezember statt.</p>
                 <p>Die monatlichen Gewinner der zweiten Voting-Runde von Dezember ${currentYear - 1} bis November ${currentYear} werden hier angezeigt.</p>
             </div>

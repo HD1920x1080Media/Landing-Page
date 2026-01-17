@@ -24,11 +24,13 @@ async function main() {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1; // 1-12
   
-  // Validation: Must be in December or later
+  // Validation: Can only be started in December or later
+  // (Manual start can be done after November second voting is complete)
   if (!isAutoStart) {
-    // For manual start, check if we're after November's second voting
-    if (currentMonth < 11) {
-      throw new Error('Clip des Jahres voting can only be started after November');
+    // For manual start, check if we're in December or later
+    // This ensures November's second voting has had time to complete
+    if (currentMonth < 12) {
+      throw new Error('Clip des Jahres voting can only be started in December or later');
     }
   }
   
