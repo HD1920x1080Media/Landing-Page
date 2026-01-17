@@ -11,6 +11,13 @@ async function main() {
   // Initialize Supabase
   const supabase = getSupabaseClient();
   
+  // Configuration constants
+  const END_DAY = 21;
+  const END_HOUR = 23;
+  const END_MINUTE = 59;
+  const END_SECOND = 59;
+  const END_MILLISECOND = 999;
+  
   // Check current date - should be 15th of the month
   const now = new Date();
   const currentDay = now.getDate();
@@ -61,7 +68,7 @@ async function main() {
   
   // Calculate end date - 21st at 23:59:59
   const startDate = now;
-  const endDate = new Date(currentYear, currentMonth - 1, 21, 23, 59, 59, 999);
+  const endDate = new Date(currentYear, currentMonth - 1, END_DAY, END_HOUR, END_MINUTE, END_SECOND, END_MILLISECOND);
   
   // Validate that end date is in the future
   if (endDate <= startDate) {
@@ -71,7 +78,7 @@ async function main() {
     return;
   }
   
-  console.log(`Duration: ${Math.round((endDate - startDate) / (1000 * 60 * 60 * 24))} days`);
+  console.log(`Duration: ${Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24))} days`);
   
   // Clear any existing second voting round votes (just in case)
   console.log('Clearing previous second voting round votes...');
