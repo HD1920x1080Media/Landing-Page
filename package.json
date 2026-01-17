@@ -5,7 +5,10 @@
   "scripts": {
     "fetch-clips": "node .github/scripts/fetch-clips.js",
     "submit-vote": "node .github/scripts/submit-vote.js",
-    "calculate-results": "node .github/scripts/calculate-results.js"
+    "calculate-results": "node .github/scripts/calculate-results.js",
+    "start-second-voting": "node .github/scripts/start-second-voting.js",
+    "end-second-voting": "node .github/scripts/end-second-voting.js",
+    "check-second-voting-expiry": "node .github/scripts/check-second-voting-expiry.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.3"

@@ -15,6 +15,10 @@
         <h1 class="page-title">Clip des Monats</h1>
         <p>Hier kannst du für die Top 10 Clips des vergangenen Monats stimmen / die Ergebnisse einsehen, falls das aktuelle Voting noch nicht zur Verfügung steht.</p>
         
+        <p style="margin-bottom:18px">
+            <a href="clipdesjahres.html" class="btn">→ Zum Clip des Jahres</a>
+        </p>
+        
         <div id="voting-container" class="voting-container">
         </div>
 
@@ -23,7 +27,18 @@
         </p>
     </div>
 
-
+    <!-- Vote Bestätigungsdialog -->
+    <div id="vote-modal" class="download-modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-backdrop" onclick="hideVoteConfirm()" aria-hidden="true"></div>
+        <div class="modal-card" role="document">
+            <h3 class="modal-title">Vote bestätigen</h3>
+            <p class="modal-message">Möchtest du wirklich für diesen Clip abstimmen? <strong>Du kannst nur einmal voten!</strong></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="hideVoteConfirm()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="confirmVote()">Abstimmen</button>
+            </div>
+        </div>
+    </div>
 
     <footer class="footer">
         <p>© <span id="year"></span> FullHD Media <a href="impressum.html">Impressum</a></p>
