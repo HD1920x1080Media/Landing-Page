@@ -171,7 +171,7 @@ async function main() {
   if (process.env.MANUAL_START_DATE && process.env.MANUAL_END_DATE) {
     // Manual override: use provided dates for clips
     // Note: For manual runs, we still calculate the voting period separately
-    // to maintain the design that voting is in the last week of the month
+    // to maintain the design that voting is from 22nd to end of month
     const manualStart = new Date(process.env.MANUAL_START_DATE);
     const manualEnd = new Date(process.env.MANUAL_END_DATE);
     
@@ -181,7 +181,7 @@ async function main() {
     // Calculate voting period for the month containing the manual end date
     const endYear = manualEnd.getFullYear();
     const endMonth = manualEnd.getMonth();
-    const votingPeriod = getLastWeekOfMonth(endYear, endMonth);
+    const votingPeriod = getVotingPeriodOfMonth(endYear, endMonth);
     
     votingStartDate = votingPeriod.start.toISOString();
     votingEndDate = votingPeriod.end.toISOString();
