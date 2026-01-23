@@ -433,7 +433,20 @@ async function getOnlyBartPageViewStats(timeRange) {
       startDate = null; // All time
   }
   
-  let query = supabase.from('page_views').select('page_path');
+  // List of known OnlyBart pages
+  // NOTE: Update this list if new OnlyBart pages are added to the /ob/ directory
+  const knownOBPages = [
+    '/ob.html',
+    '/ob/posts.html',
+    '/ob/photos.html',
+    '/ob/videos.html',
+    '/ob/media.html'
+  ];
+  
+  // Use database-level filtering for better performance
+  let query = supabase.from('page_views')
+    .select('page_path')
+    .or(knownOBPages.map(page => `page_path.eq.${page}`).join(','));
   
   if (startDate) {
     query = query.gte('viewed_at', startDate.toISOString());
@@ -443,7 +456,7 @@ async function getOnlyBartPageViewStats(timeRange) {
   
   if (error) throw error;
   
-  // Filter and count OnlyBart pages
+  // Count views by page
   const obPages = {
     '/ob.html': 0,
     '/ob/posts.html': 0,
@@ -456,11 +469,9 @@ async function getOnlyBartPageViewStats(timeRange) {
   
   (data || []).forEach(view => {
     const page = view.page_path;
-    if (page === '/ob.html' || page.startsWith('/ob/')) {
+    if (page in obPages) {
+      obPages[page]++;
       totalOBViews++;
-      if (obPages.hasOwnProperty(page)) {
-        obPages[page]++;
-      }
     }
   });
   
