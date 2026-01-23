@@ -409,3 +409,67 @@ async function getDetailedPageViewStats(timeRange) {
     pageBreakdown: sortedPages
   };
 }
+
+// Get OnlyBart page view statistics with breakdown by each OnlyBart page
+async function getOnlyBartPageViewStats(timeRange) {
+  const supabase = await getSupabaseClient();
+  const now = new Date();
+  let startDate;
+  
+  switch (timeRange) {
+    case '24h':
+      startDate = new Date(now - 24 * 60 * 60 * 1000);
+      break;
+    case '7d':
+      startDate = new Date(now - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case '30d':
+      startDate = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case '1y':
+      startDate = new Date(now - 365 * 24 * 60 * 60 * 1000);
+      break;
+    default:
+      startDate = null; // All time
+  }
+  
+  let query = supabase.from('page_views').select('page_path');
+  
+  if (startDate) {
+    query = query.gte('viewed_at', startDate.toISOString());
+  }
+  
+  const { data, error } = await query;
+  
+  if (error) throw error;
+  
+  // Filter and count OnlyBart pages
+  const obPages = {
+    '/ob.html': 0,
+    '/ob/posts.html': 0,
+    '/ob/photos.html': 0,
+    '/ob/videos.html': 0,
+    '/ob/media.html': 0
+  };
+  
+  let totalOBViews = 0;
+  
+  (data || []).forEach(view => {
+    const page = view.page_path;
+    if (page === '/ob.html' || page.startsWith('/ob/')) {
+      totalOBViews++;
+      if (obPages.hasOwnProperty(page)) {
+        obPages[page]++;
+      }
+    }
+  });
+  
+  return {
+    total: totalOBViews,
+    obMain: obPages['/ob.html'],
+    obPosts: obPages['/ob/posts.html'],
+    obPhotos: obPages['/ob/photos.html'],
+    obVideos: obPages['/ob/videos.html'],
+    obMedia: obPages['/ob/media.html']
+  };
+}
