@@ -22,8 +22,14 @@ async function loadActuatorData() {
             fetchClipsStats(supabase),
             fetchResultsStats(supabase),
             fetchCDJClipsStats(supabase),
-            getSecondVotingConfig().catch(() => null),
-            getClipDesJahresVotingConfig().catch(() => null)
+            getSecondVotingConfig().catch(err => {
+                console.warn('Could not load second voting config:', err);
+                return null;
+            }),
+            getClipDesJahresVotingConfig().catch(err => {
+                console.warn('Could not load CDJ voting config:', err);
+                return null;
+            })
         ]);
         
         // Update UI with fetched data
@@ -124,7 +130,7 @@ function updateSecondVotingDisplay(config) {
     activeEl.textContent = isActive ? 'Yes' : 'No';
     
     if (isActive) {
-        const endDate = new Date(config.end_date);
+        const endDate = new Date(config.ends_at);
         detailsEl.textContent = `Ends: ${endDate.toLocaleDateString('de-DE')}`;
     } else {
         detailsEl.textContent = 'Currently inactive';
@@ -145,7 +151,7 @@ function updateCDJVotingDisplay(config) {
     activeEl.textContent = isActive ? 'Yes' : 'No';
     
     if (isActive) {
-        const endDate = new Date(config.end_date);
+        const endDate = new Date(config.ends_at);
         detailsEl.textContent = `Year: ${config.year}, Ends: ${endDate.toLocaleDateString('de-DE')}`;
     } else {
         detailsEl.textContent = 'Currently inactive';
@@ -157,11 +163,18 @@ function updateOtherMetrics() {
     document.getElementById('current-year').textContent = now.getFullYear();
     document.getElementById('current-month').textContent = now.toLocaleString('de-DE', { month: 'long' });
     
-    // Calculate page load time
-    if (window.performance && window.performance.timing) {
-        const loadTime = window.performance.timing.domContentLoadedEventEnd - window.performance.timing.navigationStart;
-        document.getElementById('page-load-time').textContent = loadTime;
-    } else {
+    // Calculate page load time using modern Performance API
+    try {
+        const perfEntries = performance.getEntriesByType('navigation');
+        if (perfEntries && perfEntries.length > 0) {
+            const navTiming = perfEntries[0];
+            const loadTime = Math.round(navTiming.domContentLoadedEventEnd - navTiming.fetchStart);
+            document.getElementById('page-load-time').textContent = loadTime;
+        } else {
+            document.getElementById('page-load-time').textContent = 'N/A';
+        }
+    } catch (err) {
+        console.warn('Could not calculate page load time:', err);
         document.getElementById('page-load-time').textContent = 'N/A';
     }
 }

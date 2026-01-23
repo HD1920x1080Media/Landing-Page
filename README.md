@@ -24,6 +24,7 @@ Manuelle zweite Voting-Runde für besondere Events:
 - `index.html` — Startseite
 - `clipdesmonats.html` — Clip des Monats Voting
 - `cdj.html` — Clip des Jahres Anzeige
+- `actuator/data.html` — Actuator Data (Statistiken & Metriken)
 - `impressum.html` — Impressum
 - `streamplan.html` — Streamplan
 - `streamelements.html` — StreamElements Integration
