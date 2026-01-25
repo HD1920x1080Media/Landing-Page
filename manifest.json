@@ -7,8 +7,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
+  "background_color": "#000000",
+  "theme_color": "#7C4DFF",
   "lang": "de",
   "dir": "ltr",
   "icons": [
@@ -36,5 +36,5 @@
   "prefer_related_applications": false,
   "related_applications": [],
   "scope_extensions": [],
-  "categories": ["education", "quiz", "game"]
+  "categories": ["streaming", "socialmedia", "entertainment"]
 }
