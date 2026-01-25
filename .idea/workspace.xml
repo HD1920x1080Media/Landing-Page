@@ -4,10 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00c35883-868f-4c61-99bc-64796ad3d22a" name="Changes" comment="Update download links for resource pack to point to the latest release on GitHub">
+    <list default="true" id="00c35883-868f-4c61-99bc-64796ad3d22a" name="Changes" comment="Update Taschengeld donation price range to 1€ - 1,19€">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/OF.png" beforeDir="false" afterPath="$PROJECT_DIR$/img/OB.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/OnlyBart.png" beforeDir="false" afterPath="$PROJECT_DIR$/img/OnlyBart.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ob.html" beforeDir="false" afterPath="$PROJECT_DIR$/ob.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ob/media.html" beforeDir="false" afterPath="$PROJECT_DIR$/ob/media.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ob/photos.html" beforeDir="false" afterPath="$PROJECT_DIR$/ob/photos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ob/posts.html" beforeDir="false" afterPath="$PROJECT_DIR$/ob/posts.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ob/videos.html" beforeDir="false" afterPath="$PROJECT_DIR$/ob/videos.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,11 +97,11 @@
       <recent name="D:\Daten\Coding\HD\html" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Daten\Coding\HD\audio" />
       <recent name="D:\Daten\Coding\HD\img" />
       <recent name="D:\Daten\Coding\HD" />
       <recent name="D:\Daten\Coding\HD\ob" />
       <recent name="D:\Daten\Coding\HD\ob\HD" />
-      <recent name="D:\Daten\Coding\HD\html" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -126,38 +132,8 @@
       <workItem from="1768652177274" duration="416000" />
       <workItem from="1768652683789" duration="55000" />
       <workItem from="1769111835934" duration="642000" />
-    </task>
-    <task id="LOCAL-00001" summary="Add initial website files including index, impressum, and styles">
-      <option name="closed" value="true" />
-      <created>1767467380456</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1767467380457</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Add project configuration and resource files">
-      <option name="closed" value="true" />
-      <created>1767467550753</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1767467550753</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Add project configuration and resource files">
-      <option name="closed" value="true" />
-      <created>1767467796486</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1767467796486</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Update impressum and index pages with new content and styling; add embedded live feeds">
-      <option name="closed" value="true" />
-      <created>1767691874774</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1767691874774</updated>
+      <workItem from="1769337544883" duration="8663000" />
+      <workItem from="1769357147214" duration="997000" />
     </task>
     <task id="LOCAL-00005" summary="Add project configuration files and new HTML pages for Streamplan and updated Impressum">
       <option name="closed" value="true" />
@@ -479,7 +455,79 @@
       <option name="project" value="LOCAL" />
       <updated>1768652706946</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="Enhance donation page: add audio triggers and modal for donation interactions">
+      <option name="closed" value="true" />
+      <created>1769342759032</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1769342759032</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Fix audio file path case sensitivity for Taschengeld donation trigger">
+      <option name="closed" value="true" />
+      <created>1769343209215</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1769343209215</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Fix audio file path case sensitivity for Taschengeld donation trigger">
+      <option name="closed" value="true" />
+      <created>1769343793702</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1769343793702</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Fix audio file path case sensitivity for Taschengeld donation trigger">
+      <option name="closed" value="true" />
+      <created>1769343836946</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1769343836946</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Update Twitch links in 404.html to use the correct domain">
+      <option name="closed" value="true" />
+      <created>1769343919543</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1769343919543</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Update 404.html to redirect to the homepage on error">
+      <option name="closed" value="true" />
+      <created>1769348253268</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1769348253273</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Fix audio file path case sensitivity for Scream donation trigger">
+      <option name="closed" value="true" />
+      <created>1769348369161</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1769348369161</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Remove audio file reference for Konfettikanone donation trigger">
+      <option name="closed" value="true" />
+      <created>1769348447130</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1769348447131</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Update Taschengeld donation price range to 1€ - 1,19€">
+      <option name="closed" value="true" />
+      <created>1769348498574</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1769348498574</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -513,7 +561,14 @@
     <MESSAGE value="Add initial voting page and related assets" />
     <MESSAGE value="Enhance voting system: add no results message, embed button, and improve error handling" />
     <MESSAGE value="Update download links for resource pack to point to the latest release on GitHub" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update download links for resource pack to point to the latest release on GitHub" />
+    <MESSAGE value="Enhance donation page: add audio triggers and modal for donation interactions" />
+    <MESSAGE value="Fix audio file path for Taschengeld donation trigger" />
+    <MESSAGE value="Fix audio file path case sensitivity for Taschengeld donation trigger" />
+    <MESSAGE value="Update 404.html to redirect to the homepage on error" />
+    <MESSAGE value="Fix audio file path case sensitivity for Scream donation trigger" />
+    <MESSAGE value="Remove audio file reference for Konfettikanone donation trigger" />
+    <MESSAGE value="Update Taschengeld donation price range to 1€ - 1,19€" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update Taschengeld donation price range to 1€ - 1,19€" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
