@@ -50,8 +50,20 @@
 
     /* On small screens stack player and chat vertically for better UX */
     .responsive-embed-row { display:flex; flex-direction:column; }
-    .responsive-embed.player { min-height: 200px; }
-    .responsive-embed.chat { min-height: 260px; flex: none; max-width: none; }
+    /* allow explicit heights on mobile by disabling desktop aspect-ratio */
+    .responsive-embed { aspect-ratio: auto !important; min-height: 0 !important; }
+    /* player: allow it to grow; chat: fixed height for consistent visibility */
+    .responsive-embed.player { min-height: 260px; height: auto; flex: 1 1 auto; display: block !important; }
+    .responsive-embed.player iframe { min-height: 260px; }
+    /* Erhöhte Chat-Höhe auf Mobilgeräten */
+    .responsive-embed.chat { height: 380px; min-height: 380px; flex: 0 0 auto; max-width: none; display: block !important; }
+    .responsive-embed.chat iframe { height: 100%; }
+
+    /* Force visibility for live mode on mobile in case inline styles hide it */
+    body.mobile-live .responsive-embed.chat { display: block !important; }
+    body.mobile-live .responsive-embed.player { display: block !important; }
+    /* also ensure the live section itself is visible when mobile-live */
+    body.mobile-live #live-section { display: block !important; }
 
     /* Hide Clips & Partner sections on mobile by default; show them when user selects Links */
     .clips-section { display: none !important; }

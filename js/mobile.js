@@ -75,11 +75,25 @@ function copyDiscountCode(event) {
             liveBtn.classList.add('active'); linksBtn.classList.remove('active');
             liveBtn.setAttribute('aria-selected', 'true'); linksBtn.setAttribute('aria-selected', 'false');
             if (!donationsLoaded) loadDonations();
+            // ensure embeds and visibility are correct for mobile live
+            try { setTwitchEmbeds(); } catch(e) {}
+            try { updateEmbedDisplayForMobile(); } catch(e) {}
+            // Force live-section visible and chat visible
+            try {
+                const liveSection = document.getElementById('live-section');
+                if (liveSection) liveSection.style.display = 'block';
+                const chatWrap = document.querySelector('.responsive-embed.chat');
+                if (chatWrap) chatWrap.style.display = 'block';
+            } catch (e) { /* ignore */ }
         } else {
             document.body.classList.add('mobile-links');
             document.body.classList.remove('mobile-live');
             linksBtn.classList.add('active'); liveBtn.classList.remove('active');
             liveBtn.setAttribute('aria-selected', 'false'); linksBtn.setAttribute('aria-selected', 'true');
+            // update visibility when switching away from live
+            try { updateEmbedDisplayForMobile(); } catch(e) {}
+            // Force live-section hidden when in links mode on mobile
+            try { const liveSection = document.getElementById('live-section'); if (liveSection) liveSection.style.display = 'none'; } catch(e) {}
         }
         try { localStorage.setItem('mobileView', mode); } catch (e) {}
     }
@@ -104,6 +118,33 @@ function copyDiscountCode(event) {
         } catch (e) { console.warn('updateDonationVisibility failed', e); }
     }
 
+    // Ensure chat/player are visible on mobile live and set iframe srcs if missing
+    function updateEmbedDisplayForMobile() {
+        try {
+            const playerWrap = document.querySelector('.responsive-embed.player');
+            const chatWrap = document.querySelector('.responsive-embed.chat');
+            const playerIframe = document.querySelector('.twitch-player-iframe');
+            const chatIframe = document.querySelector('.twitch-chat-iframe');
+
+            if (!mq.matches) {
+                // Desktop: keep default layout (chat on right). Ensure chat visible via CSS grid.
+                if (chatWrap) chatWrap.style.display = '';
+                if (playerWrap) playerWrap.style.flex = '1 1 0';
+            } else {
+                // Mobile: stack vertically; when mobile-live show both stacked
+                if (document.body.classList.contains('mobile-live')) {
+                    if (chatWrap) chatWrap.style.display = 'block';
+                    if (playerWrap) playerWrap.style.display = 'block';
+                    // ensure iframe srcs are set
+                    setTwitchEmbeds();
+                } else {
+                    // links view: hide live area
+                    if (chatWrap) chatWrap.style.display = 'none';
+                }
+            }
+        } catch (e) { console.warn('updateEmbedDisplayForMobile failed', e); }
+    }
+
     // Set Twitch iframe srcs using correct parent (current hostname)
     function setTwitchEmbeds() {
         try {
@@ -122,7 +163,20 @@ function copyDiscountCode(event) {
             } else if (chat) {
                 chat.src = `https://www.twitch.tv/embed/${encodeURIComponent(channel)}/chat?parent=${encodeURIComponent(host)}&darkpopout`;
             }
-        } catch (e) { console.warn('setTwitchEmbeds failed', e); }
+            // attach load/error handlers and fallback for chat iframe
+            try {
+                if (chat) {
+                    const chatWrap = document.querySelector('.responsive-embed.chat');
+                    let settled = false;
+                    const onLoad = () => { settled = true; if (chatWrap) chatWrap.style.display = 'block'; chat.removeEventListener('load', onLoad); chat.removeEventListener('error', onError); };
+                    const onError = () => { settled = true; if (chatWrap) { chatWrap.style.display = 'block'; /* fallback link already present in DOM */ } chat.removeEventListener('load', onLoad); chat.removeEventListener('error', onError); };
+                    chat.addEventListener('load', onLoad);
+                    chat.addEventListener('error', onError);
+                    // small timeout: if still not settled, show fallback UI
+                    setTimeout(() => { if (!settled) { if (chatWrap) chatWrap.style.display = 'block'; /* show fallback link area (static in HTML) */ } }, 1200);
+                }
+            } catch (e) { /* ignore */ }
+         } catch (e) { console.warn('setTwitchEmbeds failed', e); }
     }
 
     async function loadDonations() {
@@ -315,6 +369,8 @@ function copyDiscountCode(event) {
     applyInitial();
     // Ensure Twitch iframe srcs are set immediately so chat/player load correctly
     try { setTwitchEmbeds(); } catch (e) { /* ignore */ }
+    // Ensure embed display matches current state
+    try { updateEmbedDisplayForMobile(); } catch(e) {}
     // Do not auto-load donations on desktop to keep donation-embed hidden on wide screens.
     // Donations will be loaded when the user switches to mobile 'Live' view or via explicit call.
     // Ensure initial donation visibility
