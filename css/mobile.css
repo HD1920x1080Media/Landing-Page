@@ -1,0 +1,47 @@
+/* Mobile-specific styles previously inline in index.html */
+
+/* Mobile toggle UI - hidden on wide screens */
+.mobile-toggle { display: none; gap: .5rem; margin: .75rem 0; }
+.mobile-toggle button { flex: 1; padding: .5rem 0.75rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); background: #fff; }
+.mobile-toggle button.active { background: #111; color: #fff; }
+
+/* Donation embed placeholder styling */
+#donation-embed { margin-top: 1rem; display: none !important; }
+#donation-embed .embed-card { padding: .75rem; }
+
+/* Donation tiles: show only price initially */
+#donation-embed .triggers-list { display:flex; flex-wrap:wrap; gap:10px; padding:0; margin:0; list-style:none; }
+#donation-embed .triggers-list li { display:flex; flex-direction:column; align-items:center; justify-content:center; width:84px; height:84px; min-width:84px; border-radius:10px; background:#000; box-shadow:0 1px 4px rgba(0,0,0,0.2); padding:8px; cursor:pointer; position:relative; text-align:center; overflow:hidden; }
+#donation-embed .triggers-list li .price-badge { display:block; font-weight:700; font-size:1rem; color:#fff; }
+#donation-embed .triggers-list li .trigger-desc { display:none; font-size:0.8rem; margin-top:6px; color:#ddd; }
+#donation-embed .triggers-list li .trigger-desc.small { font-size:0.75rem; }
+/* expanded state shows description and expands tile */
+#donation-embed .triggers-list li.expanded { min-width:200px; width:auto; height:auto; padding:12px; align-items:flex-start; }
+#donation-embed .triggers-list li.expanded .trigger-desc { display:block; }
+#donation-embed .triggers-list li.expanded .price-badge { font-size:1.1rem; }
+
+@media (max-width: 720px) {
+    .mobile-toggle { display: flex; }
+    /* Default on mobile: show links, hide live content */
+    #live-section { display: none; }
+    /* When body has mobile-live class, show live and donation, hide links */
+    body.mobile-live #links-section { display: none; }
+    body.mobile-live #live-section { display: block; }
+    body.mobile-links #links-section { display: block; }
+    body.mobile-links #live-section { display: none; }
+    /* Ensure donation embed sits under the stream/chat and is visible only in live mode */
+    /* On mobile override: show donation only in mobile-live */
+    body.mobile-live #donation-embed { display: block !important; }
+    /* make embed area reasonably sized on small screens */
+    .responsive-embed-row { min-height: 220px; }
+
+    /* On small screens stack player and chat vertically for better UX */
+    .responsive-embed-row { display:flex; flex-direction:column; }
+    .responsive-embed.player { min-height: 200px; }
+    .responsive-embed.chat { min-height: 260px; flex: none; max-width: none; }
+
+    /* Hide Clips & Partner sections on mobile by default; show them when user selects Links */
+    .clips-section { display: none !important; }
+    /* When in mobile 'links' view, show the clips/partner blocks */
+    body.mobile-links .clips-section { display: block !important; }
+}

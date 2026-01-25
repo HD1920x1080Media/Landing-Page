@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon" href="img/logo128.png">
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="stylesheet" href="./css/cookie-banner.css">
+    <link rel="stylesheet" href="./css/mobile.css">
 </head>
 <body>
 <header id="hero" class="hero fullwidth">
@@ -26,8 +27,14 @@
 </header>
 
 <main class="container">
+    <!-- Mobile Toggle: nur sichtbar auf kleinen Displays -->
+    <div class="mobile-toggle" role="tablist" aria-label="Ansicht wechseln">
+        <button id="mobile-live-btn" role="tab" aria-controls="live-section" aria-selected="false">Live</button>
+        <button id="mobile-links-btn" role="tab" aria-controls="links-section" aria-selected="true">Links</button>
+    </div>
+
     <!-- Eingebettete Live-Feeds -->
-    <section class="embed-section" aria-label="Live Streams und Kalender">
+    <section id="live-section" class="embed-section" aria-label="Live Streams und Kalender">
         <div class="embed-wrapper">
             <!-- Twitch Embed (responsive) -->
             <div class="embed-card fullwidth">
@@ -35,25 +42,39 @@
                 <div class="responsive-embed-row" style="display:flex;gap:1rem;align-items:stretch;">
                     <div class="responsive-embed player" style="flex:1 1 0;">
                         <iframe
-                                src="https://player.twitch.tv/?channel=hd1920x1080&parent=hd1920x1080.de&muted=true"
+                                class="twitch-player-iframe"
+                                data-channel="hd1920x1080"
+                                allow="autoplay; fullscreen; clipboard-write; encrypted-media"
                                 allowfullscreen
                                 title="Twitch Live Player"
                                 style="width:100%;height:100%;border:0;"></iframe>
                     </div>
                     <div class="responsive-embed chat" style="flex:0 0 220px;max-width:420px;">
                         <iframe
-                                src="https://www.twitch.tv/embed/hd1920x1080/chat?parent=hd1920x1080.de&darkpopout"
+                                class="twitch-chat-iframe"
+                                data-channel="hd1920x1080"
                                 title="Twitch Chat"
+                                allow="autoplay; fullscreen; clipboard-write"
                                 sandbox="allow-scripts allow-same-origin allow-popups"
                                 style="width:100%;height:100%;border:0;"></iframe>
+                        <!-- Fallback link für Fälle, in denen das Twitch-Embed blockiert wird -->
+                        <div style="margin-top:.5rem; font-size:.9rem;">
+                            <a href="https://www.twitch.tv/hd1920x1080/chat" target="_blank" rel="noopener noreferrer">Chat im neuen Tab öffnen</a>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Donation placeholder: wird beim Wechsel in Live-View gefüllt -->
+            <div id="donation-embed" class="embed-card fullwidth" aria-live="polite" aria-atomic="true" style="display:none;">
+                <!-- Wird dynamisch befüllt (fetch von streamelements.html) -->
+                <div class="loading">Lade Spenden-Übersicht…</div>
             </div>
         </div>
     </section>
 
     <!-- Haupt-Links (keine Impressum-Karte hier) -->
-    <section class="links-box" aria-label="Wichtige Links">
+    <section id="links-section" class="links-box" aria-label="Wichtige Links">
         <div class="link-grid">
 
             <a class="link-card"
@@ -268,87 +289,10 @@
     </footer>
 </main>
 
-<script>
-    // Jahr setzen
-    document.getElementById('year').textContent = new Date().getFullYear();
+<script src="js/mobile.js"></script>
 
-    // Kleine Helfer: Clipboard-Fallback, Toast-Anzeige und Copy-Handler
-    function copyToClipboardFallback(text) {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        // Vermeide Scrolljump
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        ta.setAttribute('aria-hidden', 'true');
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch (e) { /* ignore */ }
-        document.body.removeChild(ta);
-    }
-
-    function showToast(message) {
-        const t = document.createElement('div');
-        t.textContent = message;
-        t.style.position = 'fixed';
-        t.style.right = '1rem';
-        t.style.bottom = '1rem';
-        t.style.padding = '0.5rem 0.75rem';
-        t.style.background = 'rgba(0,0,0,0.85)';
-        t.style.color = '#fff';
-        t.style.borderRadius = '6px';
-        t.style.zIndex = 9999;
-        t.style.fontSize = '0.9rem';
-        t.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-        t.style.transition = 'opacity 0.3s ease';
-        document.body.appendChild(t);
-        // kurz sichtbar lassen
-        setTimeout(() => { t.style.opacity = '0'; }, 1400);
-        setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 1800);
-    }
-
-    function copyDiscountCode(event) {
-        // copy durchführen, bevor der Link das neue Tab öffnet
-        try {
-            const link = event.currentTarget || event.target;
-            const code = link && link.dataset && link.dataset.code;
-            if (!code) return;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(code).then(() => {
-                    showToast('Rabattcode kopiert: ' + code);
-                }).catch(() => {
-                    copyToClipboardFallback(code);
-                    showToast('Rabattcode kopiert: ' + code);
-                });
-            } else {
-                copyToClipboardFallback(code);
-                showToast('Rabattcode kopiert: ' + code);
-            }
-        } catch (e) {
-            // still fail silently
-            console.warn('copyDiscountCode failed', e);
-        }
-    }
-
-    // Versuche, der eingebetteten Kalender-Instanz per postMessage die Listenansicht anzufordern.
-    // Hinweis: Viele Kalender-Widgets reagieren nicht auf postMessage; das ist ein harter Fallback.
-    (function () {
-        const iframe = document.getElementById('calendar-iframe');
-        if (!iframe) return; // robust gegen fehlenden iframe
-        // Wenn der iframe geladen ist, sende eine message (empfänger muss das unterstützen)
-        iframe.addEventListener('load', function () {
-            try {
-                // Wir senden eine generische Nachricht; falls der Embedded-Kalender eine API hat, kann er reagieren.
-                iframe.contentWindow.postMessage({type: 'setView', view: 'list'}, '*');
-                // zusätzlich versuchen, Hash- oder Query-Parameter zu nutzen (bereits in src gesetzt)
-            } catch (e) {
-                console.warn('postMessage to calendar iframe failed', e);
-            }
-        });
-    })();
-</script>
-
-<!-- Cookie Consent Banner -->
-<div id="cookie-banner" class="cookie-banner">
+ <!-- Cookie Consent Banner -->
+ <div id="cookie-banner" class="cookie-banner">
     <div class="cookie-banner-content">
         <div class="cookie-banner-text">
             Wir verwenden Cookies, um anonymisierte Seitenaufrufe zu erfassen und unsere Website zu verbessern. Weitere Informationen finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.
