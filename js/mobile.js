@@ -211,7 +211,7 @@ function copyDiscountCode(event) {
             seLink.style.marginTop = '0.5rem';
             seLink.style.padding = '0.5rem';
             seLink.innerHTML = `
-                <img src="img/StreamElements.png" alt="StreamElements" class="icon">
+                <img src="img/Logos/StreamElements.png" alt="StreamElements" class="icon">
                 <div class="card-text">
                     <strong>StreamElements</strong>
                     <span>Donation</span>

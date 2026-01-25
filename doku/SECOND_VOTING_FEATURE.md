@@ -157,7 +157,7 @@ Added styles for:
 Added link to `/cdj` page in `index.html`:
 ```html
 <a class="link-card" href="cdj.html" target="_self" rel="noopener">
-    <img src="img/CDM.svg" alt="Clip des Jahres" class="icon">
+    <img src="img/Logos/CDM.svg" alt="Clip des Jahres" class="icon">
     <div class="card-text">
         <strong>Clip des Jahres</strong>
         <span>Die Gewinner der zweiten Voting-Runde</span>
