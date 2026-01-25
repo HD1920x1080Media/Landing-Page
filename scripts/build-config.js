@@ -26,7 +26,7 @@ try {
   }
 } catch (error) {
   // dotenv not installed or .env doesn't exist, that's ok for CI/CD
-  console.log('ℹ No .env file found, using environment variables');
+  console.log('ℹ Using environment variables (dotenv not available or .env not found)');
 }
 
 // Get configuration from environment
