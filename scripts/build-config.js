@@ -48,19 +48,28 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1);
 }
 
-// Generate config.js content
+// Safely escape values for JavaScript (prevent injection)
+function escapeForJS(value) {
+  return JSON.stringify(value);
+}
+
+// Generate config.js content with safely escaped values
 const configContent = `// This file is auto-generated during build/deployment
 // DO NOT commit this file to git - it contains environment-specific configuration
 // To generate this file locally, run: npm run build-config
 
 window.SUPABASE_CONFIG = {
-  url: '${supabaseUrl}',
-  publishableKey: '${supabaseKey}'
+  url: ${escapeForJS(supabaseUrl)},
+  publishableKey: ${escapeForJS(supabaseKey)}
 };
 `;
 
-// Write to js/config.js
+// Write to js/config.js (ensure directory exists)
 const outputPath = path.join(__dirname, '..', 'js', 'config.js');
+const outputDir = path.dirname(outputPath);
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
 fs.writeFileSync(outputPath, configContent, 'utf8');
 
 console.log('✓ Generated js/config.js successfully');
