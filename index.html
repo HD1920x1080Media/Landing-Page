@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./css/cookie-banner.css">
     <link rel="stylesheet" href="./css/mobile.css">
 </head>
-<body>
+<body class="mobile-live">
 <header id="hero" class="hero fullwidth">
     <div class="hero-overlay fullwidth">
         <div class="container">
@@ -29,8 +29,8 @@
 <main class="container">
     <!-- Mobile Toggle: nur sichtbar auf kleinen Displays -->
     <div class="mobile-toggle" role="tablist" aria-label="Ansicht wechseln">
-        <button id="mobile-live-btn" role="tab" aria-controls="live-section" aria-selected="false">Live</button>
-        <button id="mobile-links-btn" role="tab" aria-controls="links-section" aria-selected="true">Links</button>
+        <button id="mobile-live-btn" class="active" role="tab" aria-controls="live-section" aria-selected="true">Live</button>
+        <button id="mobile-links-btn" role="tab" aria-controls="links-section" aria-selected="false">Links</button>
     </div>
 
     <!-- Eingebettete Live-Feeds -->

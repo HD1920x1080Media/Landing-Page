@@ -100,7 +100,7 @@ function copyDiscountCode(event) {
 
     function applyInitial() {
         if (!mq.matches) { document.body.classList.remove('mobile-live', 'mobile-links'); linksBtn.classList.remove('active'); liveBtn.classList.remove('active'); return; }
-        const saved = (function(){ try { return localStorage.getItem('mobileView'); } catch(e){ return null; } })() || 'links';
+        const saved = (function(){ try { return localStorage.getItem('mobileView'); } catch(e){ return null; } })() || 'live';
         setMobileView(saved);
     }
 
