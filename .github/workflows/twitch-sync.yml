@@ -1,0 +1,28 @@
+name: Twitch Schedule Sync
+on:
+  schedule:
+    - cron: '0 3 * * *' # Läuft jede Nacht um 3:00 Uhr
+  workflow_dispatch:   # Ermöglicht manuellen Start per Klick
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install requests icalendar
+
+      - name: Run Sync
+        env:
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          TWITCH_CHANNEL: ${{ secrets.TWITCH_CHANNEL }}
+        run: python sync_to_twitch.py
+        
