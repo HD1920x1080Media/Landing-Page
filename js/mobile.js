@@ -1,4 +1,7 @@
 // --- Gemeinsame Utilities ---
+// Configuration
+const TWITCH_CHANNEL_NAME = 'hd1920x1080';
+
 // Jahr setzen
 (function setYear() {
     const y = document.getElementById('year');
@@ -65,7 +68,7 @@ function initTwitchStatusMonitoring() {
         return;
     }
 
-    twitchStatusChecker = new window.TwitchStatusChecker('hd1920x1080');
+    twitchStatusChecker = new window.TwitchStatusChecker(TWITCH_CHANNEL_NAME);
     
     // Start monitoring with callback
     twitchStatusChecker.startMonitoring((isLive) => {
@@ -214,18 +217,26 @@ function updateYouTubeLayout() {
             const host = location.hostname || 'localhost';
             const player = document.querySelector('.twitch-player-iframe');
             const chat = document.querySelector('.twitch-chat-iframe');
-            const channel = (player && player.dataset && player.dataset.channel) || (chat && chat.dataset && chat.dataset.channel) || 'hd1920x1080';
+            const youtubeChat = document.querySelector('.youtube-chat-iframe');
+            const channel = TWITCH_CHANNEL_NAME;
+            
             if (player && (!player.src || player.src.indexOf('twitch.tv') === -1)) {
                 player.src = `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&parent=${encodeURIComponent(host)}&muted=true`;
             } else if (player) {
                 // always ensure parent matches host
                 player.src = `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&parent=${encodeURIComponent(host)}&muted=true`;
             }
-            if (chat && (!chat.src || chat.src.indexOf('twitch.tv') === -1)) {
-                chat.src = `https://www.twitch.tv/embed/${encodeURIComponent(channel)}/chat?parent=${encodeURIComponent(host)}&darkpopout`;
-            } else if (chat) {
-                chat.src = `https://www.twitch.tv/embed/${encodeURIComponent(channel)}/chat?parent=${encodeURIComponent(host)}&darkpopout`;
-            }
+            
+            // Set Twitch chat for both Twitch and YouTube containers
+            const chatIframes = [chat, youtubeChat].filter(Boolean);
+            chatIframes.forEach(chatIframe => {
+                if (!chatIframe.src || chatIframe.src.indexOf('twitch.tv') === -1) {
+                    chatIframe.src = `https://www.twitch.tv/embed/${encodeURIComponent(channel)}/chat?parent=${encodeURIComponent(host)}&darkpopout`;
+                } else {
+                    chatIframe.src = `https://www.twitch.tv/embed/${encodeURIComponent(channel)}/chat?parent=${encodeURIComponent(host)}&darkpopout`;
+                }
+            });
+            
             // attach load/error handlers and fallback for chat iframe
             try {
                 if (chat) {
