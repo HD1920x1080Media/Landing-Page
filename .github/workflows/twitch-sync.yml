@@ -1,80 +1,30 @@
-import os
-import requests
-from icalendar import Calendar
-from datetime import datetime, timezone
+name: Twitch and Supabase Sync
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Läuft alle 30 Minuten
+  workflow_dispatch:      # Erlaubt weiterhin den manuellen Start
 
-# --- KONFIGURATION ---
-CLIENT_ID = os.getenv('TWITCH_CLIENT_ID')
-USER_TOKEN = os.getenv('TWITCH_TOKEN')
-CHANNEL_NAME = os.getenv('TWITCH_CHANNEL')
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-ICS_URL = "https://export.kalender.digital/ics/0/4ccef74582e0eb8d7026/twitchhd1920x1080.ics?past_months=3&future_months=36"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-def update_supabase(event_data, now_iso):
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        print("Supabase Config fehlt.")
-        return
-    
-    url = f"{SUPABASE_URL}/rest/v1/streams"
-    headers = {
-        "apikey": SUPABASE_KEY,
-        "Authorization": f"Bearer {SUPABASE_KEY}",
-        "Content-Type": "application/json"
-    }
+      - name: Install Dependencies
+        run: pip install requests icalendar
 
-    # 1. LÖSCHEN: Alle abgelaufenen Streams (start_time < jetzt)
-    # .lt steht für 'less than'
-    del_res = requests.delete(f"{url}?start_time=lt.{now_iso}", headers=headers)
-    print(f"Alte Einträge gelöscht: {del_res.status_code}")
-
-    # 2. EINTRAGEN: Den nächsten Stream speichern
-    if event_data:
-        payload = {
-            "id": 1, 
-            "title": event_data['title'],
-            "start_time": event_data['start_time']
-        }
-        headers["Prefer"] = "resolution=merge-duplicates"
-        r = requests.post(url, headers=headers, json=payload)
-        print(f"Nächster Stream '{event_data['title']}' gespeichert: {r.status_code}")
-    else:
-        print("Kein zukünftiger Stream zum Eintragen gefunden.")
-
-def sync():
-    print("Lade iCal Feed...")
-    response = requests.get(ICS_URL)
-    if "BEGIN:VCALENDAR" not in response.text:
-        print("Fehler: Ungültiger iCal Feed.")
-        return
-        
-    cal = Calendar.from_ical(response.content)
-    now = datetime.now(timezone.utc)
-    now_iso = now.strftime('%Y-%m-%dT%H:%M:%SZ')
-    
-    upcoming_events = []
-
-    for event in cal.walk('vevent'):
-        start = event.get('dtstart').dt
-        if not isinstance(start, datetime): continue
-        if start.tzinfo is None: start = start.replace(tzinfo=timezone.utc)
-
-        if start > now:
-            upcoming_events.append({
-                "title": str(event.get('summary'))[:140],
-                "start_time": start.strftime('%Y-%m-%dT%H:%M:%SZ')
-            })
-
-    # Sortieren (Sicher ist sicher)
-    upcoming_events.sort(key=lambda x: x['start_time'])
-
-    # Supabase mit dem nächsten Event (Index 0) und der aktuellen Zeit füttern
-    next_event = upcoming_events[0] if upcoming_events else None
-    update_supabase(next_event, now_iso)
-
-    # Hier würde dann dein Twitch-Code folgen...
-    print("Skript beendet.")
-
-if __name__ == "__main__":
-    sync()
+      - name: Run Sync
+        env:
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_TOKEN: ${{ secrets.TWITCH_TOKEN }}
+          TWITCH_CHANNEL: ${{ secrets.TWITCH_CHANNEL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }} # Wichtig für den manuellen Start
+        run: python .github/scripts/sync_to_twitch.py
