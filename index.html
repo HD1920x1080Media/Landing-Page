@@ -37,7 +37,7 @@
     <section id="live-section" class="embed-section" aria-label="Live Streams und Kalender">
         <div class="embed-wrapper">
             <!-- Twitch Embed (responsive) -->
-            <div class="embed-card fullwidth">
+            <div class="embed-card fullwidth" id="twitch-embed-container">
                 <a href="https://www.twitch.tv/hd1920x1080"><div class="embed-title">Live</div></a>
                 <div class="responsive-embed-row" style="display:flex;gap:1rem;align-items:stretch;">
                     <div class="responsive-embed player" style="flex:1 1 0;">
@@ -57,6 +57,34 @@
                                 allow="autoplay; fullscreen; clipboard-write"
                                 style="width:100%;height:100%;border:0;"></iframe>
                         <!-- Fallback link für Fälle, in denen das Twitch-Embed blockiert wird -->
+                        <div style="margin-top:.5rem; font-size:.9rem;">
+                            <a href="https://www.twitch.tv/hd1920x1080/chat" target="_blank" rel="noopener noreferrer">Chat im neuen Tab öffnen</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube Embed (shown when Twitch is offline) -->
+            <div class="embed-card fullwidth" id="youtube-embed-container" style="display:none;">
+                <a href="https://youtube.com/@hawedereplus"><div class="embed-title">Stream offline - YouTube</div></a>
+                <div class="responsive-embed-row" style="display:flex;gap:1rem;align-items:stretch;">
+                    <div class="responsive-embed player youtube-player" style="flex:1 1 0;">
+                        <iframe
+                                class="youtube-player-iframe"
+                                src="https://www.youtube.com/embed?listType=user_uploads&list=hawedereplus"
+                                allow="autoplay; fullscreen; clipboard-write; encrypted-media"
+                                allowfullscreen
+                                title="YouTube Channel"
+                                style="width:100%;height:100%;border:0;"></iframe>
+                    </div>
+                    <div class="responsive-embed chat youtube-chat" style="flex:0 0 220px;max-width:420px;">
+                        <iframe
+                                class="twitch-chat-iframe"
+                                data-channel="hd1920x1080"
+                                title="Twitch Chat"
+                                allow="autoplay; fullscreen; clipboard-write"
+                                style="width:100%;height:100%;border:0;"></iframe>
+                        <!-- Fallback link -->
                         <div style="margin-top:.5rem; font-size:.9rem;">
                             <a href="https://www.twitch.tv/hd1920x1080/chat" target="_blank" rel="noopener noreferrer">Chat im neuen Tab öffnen</a>
                         </div>
@@ -288,6 +316,7 @@
     </footer>
 </main>
 
+<script src="js/twitch-status.js"></script>
 <script src="js/mobile.js"></script>
 
  <!-- Cookie Consent Banner -->

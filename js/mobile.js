@@ -55,6 +55,69 @@ function copyDiscountCode(event) {
     });
 })();
 
+// --- Twitch Status Monitoring ---
+let twitchStatusChecker = null;
+let currentPlatform = 'twitch'; // 'twitch' or 'youtube'
+
+function initTwitchStatusMonitoring() {
+    if (!window.TwitchStatusChecker) {
+        console.warn('TwitchStatusChecker not loaded');
+        return;
+    }
+
+    twitchStatusChecker = new window.TwitchStatusChecker('hd1920x1080');
+    
+    // Start monitoring with callback
+    twitchStatusChecker.startMonitoring((isLive) => {
+        handleStreamStatusChange(isLive);
+    }, 60000); // Check every 60 seconds
+}
+
+function handleStreamStatusChange(isLive) {
+    const twitchContainer = document.getElementById('twitch-embed-container');
+    const youtubeContainer = document.getElementById('youtube-embed-container');
+    
+    if (!twitchContainer || !youtubeContainer) return;
+
+    if (isLive && currentPlatform !== 'twitch') {
+        // Switch to Twitch
+        console.log('Stream is now LIVE - switching to Twitch');
+        showToast('Stream ist jetzt LIVE! 🔴');
+        twitchContainer.style.display = 'block';
+        youtubeContainer.style.display = 'none';
+        currentPlatform = 'twitch';
+        
+        // Ensure Twitch embeds are loaded
+        setTwitchEmbeds();
+    } else if (!isLive && currentPlatform !== 'youtube') {
+        // Switch to YouTube
+        console.log('Stream is OFFLINE - switching to YouTube');
+        showToast('Stream ist offline - zeige YouTube Inhalte');
+        twitchContainer.style.display = 'none';
+        youtubeContainer.style.display = 'block';
+        currentPlatform = 'youtube';
+        
+        // Update layout for YouTube
+        updateYouTubeLayout();
+    }
+}
+
+function updateYouTubeLayout() {
+    const mq = window.matchMedia('(max-width:720px)');
+    const youtubePlayer = document.querySelector('.youtube-player');
+    const youtubeChat = document.querySelector('.youtube-chat');
+    
+    if (!youtubePlayer || !youtubeChat) return;
+    
+    if (mq.matches) {
+        // Mobile: YouTube window bigger, chat smaller
+        youtubePlayer.style.flex = '1 1 auto';
+        youtubePlayer.style.minHeight = '320px';
+        youtubeChat.style.height = '280px';
+        youtubeChat.style.minHeight = '280px';
+    }
+}
+
 // --- Mobile toggle, donations loader + interactions ---
 (function mobileToggleAndDonations() {
     const linksBtn = document.getElementById('mobile-links-btn');
@@ -334,4 +397,9 @@ function copyDiscountCode(event) {
             }).catch(err => console.warn('ServiceWorker registration failed', err));
         }
     } catch (e) { console.warn('ServiceWorker registration not available', e); }
+
+    // Initialize Twitch status monitoring
+    try {
+        initTwitchStatusMonitoring();
+    } catch (e) { console.warn('Failed to initialize Twitch status monitoring', e); }
  })();

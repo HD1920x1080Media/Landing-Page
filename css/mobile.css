@@ -59,6 +59,11 @@
     .responsive-embed.chat { height: 380px; min-height: 380px; flex: 0 0 auto; max-width: none; display: block !important; }
     .responsive-embed.chat iframe { height: 100%; }
 
+    /* YouTube layout on mobile: bigger player, smaller chat */
+    .responsive-embed.youtube-player { min-height: 320px; flex: 1 1 auto; display: block !important; }
+    .responsive-embed.youtube-player iframe { min-height: 320px; }
+    .responsive-embed.youtube-chat { height: 280px; min-height: 280px; flex: 0 0 auto; }
+
     /* Force visibility for live mode on mobile in case inline styles hide it */
     body.mobile-live .responsive-embed.chat { display: block !important; }
     body.mobile-live .responsive-embed.player { display: block !important; }
