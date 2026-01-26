@@ -8,18 +8,20 @@ The landing page now automatically detects if the Twitch stream is online or off
 ## How It Works
 
 ### 1. Database Schema
-A new `streams` table has been added to Supabase to store upcoming stream information:
+The existing `streams` table in Supabase stores upcoming stream information:
 ```sql
+-- Table already exists with this structure:
 CREATE TABLE streams (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    start_time TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id int8 PRIMARY KEY,
+    title text NOT NULL,
+    start_time timestamptz NOT NULL,
+    updated_at timestamptz NOT NULL
 );
 ```
 
 This table is automatically updated by the `.github/scripts/sync_to_twitch.py` script which runs every 30 minutes via GitHub Actions.
+
+**Note:** The schema file has been updated to only manage RLS policies for this existing table, not create it.
 
 ### 2. Stream Status Checking
 The `js/stream-status.js` script:
@@ -43,10 +45,11 @@ The page continuously monitors the stream status and automatically switches to t
 - `doku/STREAM_STATUS_FEATURE.md` - This documentation
 
 ### Modified
-- `doku/supabase-schema.sql` - Added streams table
+- `doku/supabase-schema.sql` - Added/updated RLS policies for existing streams table
 - `js/supabase-client.js` - Added `getNextStream()` function
 - `index.html` - Added stream-status.js script
 - `css/styles.css` - Added styling for offline message
+- `css/mobile.css` - Added mobile-responsive styling
 
 ## User Experience
 
