@@ -485,3 +485,19 @@ async function getOnlyBartPageViewStats(timeRange) {
     obMedia: obPages['/ob/media.html']
   };
 }
+
+// Get next stream information from database
+async function getNextStream() {
+  const supabase = await getSupabaseClient();
+  const { data, error } = await supabase
+    .from('streams')
+    .select('*')
+    .eq('id', 1)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') {
+    throw error;
+  }
+  
+  return data;
+}

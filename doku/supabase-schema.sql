@@ -251,3 +251,25 @@ CREATE POLICY "Allow anon role to manage cdj_winners"
     ON cdj_winners FOR ALL
     USING (true);
 
+-- Table: streams
+-- Stores upcoming stream information from calendar
+CREATE TABLE IF NOT EXISTS streams (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Enable RLS for streams table
+ALTER TABLE streams ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for streams
+CREATE POLICY "Allow public read access to streams"
+    ON streams FOR SELECT
+    USING (true);
+
+CREATE POLICY "Allow anon role to manage streams"
+    ON streams FOR ALL
+    USING (true);
+
