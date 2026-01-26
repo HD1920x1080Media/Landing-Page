@@ -251,3 +251,29 @@ CREATE POLICY "Allow anon role to manage cdj_winners"
     ON cdj_winners FOR ALL
     USING (true);
 
+-- Table: streams
+-- NOTE: This table already exists in the database with the following structure:
+-- id (int8 PRIMARY KEY), title (text), start_time (timestamptz), updated_at (timestamptz)
+-- The table is populated by the sync_to_twitch.py GitHub Actions script
+-- No table creation needed - just ensuring RLS policies are correct
+
+-- Enable RLS for streams table (if not already enabled)
+ALTER TABLE streams ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist to avoid conflicts
+DROP POLICY IF EXISTS "Allow public read access to streams" ON streams;
+DROP POLICY IF EXISTS "Allow anon role to manage streams" ON streams;
+DROP POLICY IF EXISTS "Allow service role to manage streams" ON streams;
+
+-- RLS Policies for streams
+CREATE POLICY "Allow public read access to streams"
+    ON streams FOR SELECT
+    USING (true);
+
+-- Only allow service role (GitHub Actions script) to modify streams table
+CREATE POLICY "Allow service role to manage streams"
+    ON streams FOR ALL
+    TO service_role
+    USING (true)
+    WITH CHECK (true);
+

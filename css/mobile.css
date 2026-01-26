@@ -74,3 +74,33 @@
     .fs-combined, .fs-chat { display: inline-flex; }
     .embed-controls { right: 8px; top: 8px; }
 }
+
+/* Stream offline message mobile styling */
+@media (max-width: 720px) {
+    .stream-offline-message {
+        padding: 1rem;
+        min-height: 260px;
+    }
+    
+    .offline-icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stream-offline-message h2 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .next-stream-info {
+        padding: 1rem;
+    }
+    
+    .stream-title {
+        font-size: 1.1rem;
+    }
+    
+    .stream-time {
+        font-size: 0.95rem;
+    }
+}
